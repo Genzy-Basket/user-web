@@ -20,18 +20,18 @@ export const CartProvider = ({ children }) => {
     { silent: true }, // background fetch — don't toast on error
   );
 
-  const { execute: runAddItem, loading: addLoading } = useApiCall(
+  const { execute: runAddItem, loading: addLoading, error: addError } = useApiCall(
     cartAPI.addItem,
-    { successMessage: "Item added to cart!" },
+    // { successMessage: "Item added to cart!" },
   );
 
-  const { execute: runUpdateQuantity, loading: updateLoading } = useApiCall(
+  const { execute: runUpdateQuantity, loading: updateLoading, error: updateError } = useApiCall(
     cartAPI.updateItemQuantity,
   );
 
-  const { execute: runRemoveItem, loading: removeLoading } = useApiCall(
+  const { execute: runRemoveItem, loading: removeLoading, error: removeError } = useApiCall(
     cartAPI.removeItem,
-    { successMessage: "Item removed." },
+    // { successMessage: "Item removed." },
   );
 
   const { execute: runClearCart, loading: clearLoading } = useApiCall(
@@ -45,6 +45,9 @@ export const CartProvider = ({ children }) => {
     updateLoading ||
     removeLoading ||
     clearLoading;
+
+  // Most recent mutation error (add/update/remove) — used for inline display in CartPage
+  const error = addError?.message || updateError?.message || removeError?.message || null;
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
@@ -64,35 +67,35 @@ export const CartProvider = ({ children }) => {
   const addItem = useCallback(
     async (productId, priceConfigId, quantity = 1) => {
       const response = await runAddItem(productId, priceConfigId, quantity);
-      if (response?.success) setCart(response.data);
+      if (response?.success) await fetchCart();
       return response;
     },
-    [runAddItem],
+    [runAddItem, fetchCart],
   );
 
   const updateQuantity = useCallback(
     async (cartItemId, action) => {
       const response = await runUpdateQuantity(cartItemId, action);
-      if (response?.success) setCart(response.data);
+      if (response?.success) await fetchCart();
       return response;
     },
-    [runUpdateQuantity],
+    [runUpdateQuantity, fetchCart],
   );
 
   const removeItem = useCallback(
     async (cartItemId) => {
       const response = await runRemoveItem(cartItemId);
-      if (response?.success) setCart(response.data);
+      if (response?.success) await fetchCart();
       return response;
     },
-    [runRemoveItem],
+    [runRemoveItem, fetchCart],
   );
 
   const clearCart = useCallback(async () => {
     const response = await runClearCart();
-    if (response?.success) setCart(response.data);
+    if (response?.success) await fetchCart();
     return response;
-  }, [runClearCart]);
+  }, [runClearCart, fetchCart]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -138,6 +141,7 @@ export const CartProvider = ({ children }) => {
   const value = {
     cart,
     loading,
+    error,
     fetchCart,
     addItem,
     updateQuantity,

@@ -8,6 +8,7 @@ export const UserContext = createContext(null);
 export const UserProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
 
   // ── Wired API calls ──────────────────────────────────────────────────────
   const { execute: runFetchProfile, loading: fetchLoading } = useApiCall(
@@ -96,9 +97,13 @@ export const UserProvider = ({ children }) => {
     [runRemoveMember],
   );
 
+  const clearError = useCallback(() => setError(null), []);
+
   const value = {
     profile,
     loading,
+    error,
+    clearError,
     fetchProfile,
     saveAddress,
     addMember,

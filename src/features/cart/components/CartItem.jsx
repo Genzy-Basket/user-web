@@ -54,7 +54,7 @@ const CartItem = ({ item }) => {
                 {product.name}
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                {config.displayLabel || `${config.quantity} ${config.unit}`}
+                {config.displayLabel || `${config.value} ${config.unit}`}
               </p>
             </div>
 

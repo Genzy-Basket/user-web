@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Loader2, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { useOrder } from "../hooks/useOrder";
+import { useCart } from "../../cart/hooks/useCart";
 import { ORDER_ROUTES } from "../../../constants/order.constants";
 
 const PHASE = {
@@ -16,6 +17,7 @@ const PaymentProcessingPage = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { pollOrderStatus, stopPolling } = useOrder();
+  const { clearCart } = useCart();
 
   // orderId can come from URL param (after Cashfree redirect) or router state
   const orderId = searchParams.get("order_id") || location.state?.orderId;
@@ -32,8 +34,9 @@ const PaymentProcessingPage = () => {
       onUpdate: (data) => {
         setAttempt((a) => a + 1);
       },
-      onSuccess: () => {
+      onSuccess: async () => {
         setPhase(PHASE.SUCCESS);
+        await clearCart();
         setTimeout(() => {
           navigate(ORDER_ROUTES.ORDER_SUCCESS, {
             state: { orderId },

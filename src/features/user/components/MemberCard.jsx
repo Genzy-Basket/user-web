@@ -3,20 +3,20 @@ import { User, Calendar, Activity, Edit2, Trash2 } from "lucide-react";
 const MemberCard = ({ member, onEdit, onDelete, loading }) => {
   const getBellySizeColor = (size) => {
     const colors = {
-      small: "bg-green-100 text-green-700 border-green-200",
-      medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
-      large: "bg-red-100 text-red-700 border-red-200",
-      "extra-large": "bg-purple-100 text-purple-700 border-purple-200",
+      Small: "bg-green-100 text-green-700 border-green-200",
+      Medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      Large: "bg-red-100 text-red-700 border-red-200",
+      "Extra-Large": "bg-purple-100 text-purple-700 border-purple-200",
     };
     return colors[size] || "bg-slate-100 text-slate-700 border-slate-200";
   };
 
   const getBellySizeEmoji = (size) => {
     const emojis = {
-      small: "🟢",
-      medium: "🟡",
-      large: "🔴",
-      "extra-large": "🟣",
+      Small: "🟢",
+      Medium: "🟡",
+      Large: "🔴",
+      "Extra-Large": "🟣",
     };
     return emojis[size] || "⚪";
   };

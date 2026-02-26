@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
+import { useCart } from "../../cart/hooks/useCart";
 import ProductCard from "../components/ProductCard";
 
 const ProductsPage = () => {
@@ -14,9 +15,42 @@ const ProductsPage = () => {
     getFilteredProducts,
     getCategories,
   } = useProducts();
+  const { cart } = useCart();
 
   const [showFilters, setShowFilters] = useState(false);
   const filteredProducts = getFilteredProducts();
+
+  // Build card list: one card per in-cart config (with qty ctrl),
+  // or one Add card if none are in cart for this product.
+  const buildCards = () =>
+    filteredProducts.flatMap((product) => {
+      // During search, always show one card per product
+      if (filters.searchQuery) {
+        return [<ProductCard key={product._id} product={product} />];
+      }
+
+      const cartItems =
+        cart?.items?.filter(
+          (item) => (item.productId?._id ?? item.productId) === product._id,
+        ) ?? [];
+
+      if (cartItems.length > 0) {
+        return cartItems.map((item) => {
+          const config = product.priceConfigs.find(
+            (c) => c._id === item.priceConfigId,
+          );
+          return (
+            <ProductCard
+              key={`${product._id}-${item.priceConfigId}`}
+              product={product}
+              activeConfig={config}
+            />
+          );
+        });
+      }
+
+      return [<ProductCard key={product._id} product={product} />];
+    });
   const categories = getCategories();
 
   const handleCategoryChange = (category) => {
@@ -66,9 +100,8 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      {/* Hero Section */}
       <div className="relative bg-[#009661] overflow-hidden">
-        {/* Suble background pattern for texture */}
+        {/* Background pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div
             className="absolute inset-0"
@@ -79,64 +112,44 @@ const ProductsPage = () => {
           ></div>
         </div>
 
-        {/* Hero Section */}
-        <div className="relative bg-[#009661] overflow-hidden">
-          {/* Suble background pattern for texture */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                backgroundSize: "24px 24px",
-              }}
-            ></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+          <div className="text-center mb-8 md:mb-10">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
+              Fresh <span className="text-emerald-200">Products</span>
+            </h1>
+            <p className="text-sm sm:text-base md:text-lg text-emerald-50/90 max-w-xl mx-auto font-medium">
+              Premium quality vegetables and ingredients,
+              <br className="hidden sm:block" /> hand-picked and delivered to
+              your doorstep.
+            </p>
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-            <div className="text-center mb-8 md:mb-10">
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
-                Fresh <span className="text-emerald-200">Products</span>
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-emerald-50/90 max-w-xl mx-auto font-medium">
-                Premium quality vegetables and ingredients,
-                <br className="hidden sm:block" /> hand-picked and delivered to
-                your doorstep.
-              </p>
-            </div>
-
-            {/* Search Bar */}
-            <div className="max-w-xl mx-auto mt-8 md:mt-10 px-2">
-              <div className="relative group">
-                {/* Animated Glow Background */}
-                <div className="absolute -inset-1 bg-white/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
-
-                <div className="relative">
-                  <Search
-                    className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 
-                   transition-all duration-300 
-                   text-[#009661] group-focus-within:text-slate-900 group-focus-within:scale-110"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search for fresh vegetables..."
-                    value={filters.searchQuery}
-                    onChange={handleSearchChange}
-                    className="w-full bg-white pl-14 pr-6 py-4 md:py-5 rounded-2xl text-slate-800 placeholder:text-slate-400 
-                   outline-none border-none shadow-2xl transition-all duration-300
-                   hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)] 
-                   focus:ring-4 focus:ring-emerald-400/40 focus:scale-[1.01]
-                   text-base md:text-lg font-medium"
-                  />
-                </div>
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto mt-8 md:mt-10 px-2">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-white/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <div className="relative">
+                <Search
+                  className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5
+                 transition-all duration-300
+                 text-[#009661] group-focus-within:text-slate-900 group-focus-within:scale-110"
+                />
+                <input
+                  type="text"
+                  placeholder="Search for fresh vegetables..."
+                  value={filters.searchQuery}
+                  onChange={handleSearchChange}
+                  className="w-full bg-white pl-14 pr-6 py-4 md:py-5 rounded-2xl text-slate-800 placeholder:text-slate-400
+                 outline-none border-none shadow-2xl transition-all duration-300
+                 hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)]
+                 focus:ring-4 focus:ring-emerald-400/40 focus:scale-[1.01]
+                 text-base md:text-lg font-medium"
+                />
               </div>
             </div>
           </div>
-
-          {/* Curvy bottom transition (Optional: remove if you want it flat) */}
-          <div className="absolute bottom-0 left-0 right-0 h-4 bg-white rounded-t-[40px]"></div>
         </div>
 
-        {/* Curvy bottom transition (Optional: remove if you want it flat) */}
         <div className="absolute bottom-0 left-0 right-0 h-4 bg-white rounded-t-[40px]"></div>
       </div>
 
@@ -269,15 +282,7 @@ const ProductsPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredProducts.flatMap((product) =>
-              product.priceConfigs.map((config) => (
-                <ProductCard
-                  key={`${product._id}-${config.displayLabel}`}
-                  product={product}
-                  config={config}
-                />
-              )),
-            )}
+            {buildCards()}
           </div>
         )}
       </div>

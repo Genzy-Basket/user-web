@@ -22,6 +22,7 @@ const CheckoutPage = () => {
     totalAmount: cartTotal,
     totalMrp,
     totalSavings,
+    clearCart,
   } = useCart();
   const { createOrder, loading } = useOrder();
 
@@ -57,8 +58,9 @@ const CheckoutPage = () => {
     const result = await createOrder(paymentMethod);
     if (!result.success) return; // error already toasted by context
 
-    // COD — go straight to success page
+    // COD — clear cart then go to success page
     if (result.isCod) {
+      await clearCart();
       navigate(ORDER_ROUTES.ORDER_SUCCESS, {
         state: { orderId: result.order.orderId, isCod: true },
       });
@@ -81,7 +83,7 @@ const CheckoutPage = () => {
       cashfreeInstance.checkout({
         paymentSessionId,
         redirectTarget: "_self", // redirect in same tab
-        returnUrl: `${window.location.origin}${ORDER_ROUTES.PAYMENT_PROCESSING}?order_id=${order.orderId}`,
+        returnUrl: `${window.location.origin}/#${ORDER_ROUTES.PAYMENT_PROCESSING}?order_id=${order.orderId}`,
       });
 
       // Navigate to processing page immediately so the user sees feedback
@@ -97,15 +99,22 @@ const CheckoutPage = () => {
   };
 
   // ── Build items for OrderSummary ─────────────────────────────────────────
+  // cart items have `productId` (populated) and `priceConfigId` (raw ObjectId string)
   const summaryItems =
-    cart?.items?.map((item) => ({
-      _id: item._id,
-      productSnapshot: { name: item.name, imageUrl: item.imageUrl },
-      value: item.value,
-      unit: item.unit,
-      quantity: item.quantity,
-      totalPrice: item.unitPrice * item.quantity,
-    })) ?? [];
+    cart?.items?.map((item) => {
+      const product = item.productId;
+      const config = product?.priceConfigs?.find(
+        (c) => c._id === item.priceConfigId || c.id === item.priceConfigId,
+      );
+      return {
+        _id: item._id,
+        productSnapshot: { name: product?.name, imageUrl: product?.imageUrl },
+        value: config?.quantity,
+        unit: config?.unit,
+        quantity: item.quantity,
+        totalPrice: (config?.price ?? 0) * item.quantity,
+      };
+    }) ?? [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-8 px-4">

@@ -1,5 +1,10 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  HashRouter as BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { AuthProvider } from "./features/auth/context/AuthContext";
 import { UserProvider } from "./features/user/context/UserContext";
 import { ProductProvider } from "./features/products/context/ProductContext";
