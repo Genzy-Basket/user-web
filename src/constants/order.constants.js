@@ -111,43 +111,20 @@ export const PAYMENT_STATUS_STYLE = {
 
 // ── Payment methods ───────────────────────────────────────────────────────────
 export const PAYMENT_METHOD = {
-  UPI: "upi",
-  CARD: "card",
-  NETBANKING: "netbanking",
-  WALLET: "wallet",
+  ONLINE: "online",
   COD: "cod",
 };
 
 export const PAYMENT_METHOD_CONFIG = {
-  [PAYMENT_METHOD.UPI]: {
-    label: "UPI",
-    description: "GPay, PhonePe, Paytm & more",
+  [PAYMENT_METHOD.ONLINE]: {
+    label: "Pay Online",
+    description: "UPI, Cards, Net Banking & more",
     icon: "📱",
-    popular: true,
-  },
-  [PAYMENT_METHOD.CARD]: {
-    label: "Credit / Debit Card",
-    description: "Visa, Mastercard, Rupay",
-    icon: "💳",
-    popular: false,
-  },
-  [PAYMENT_METHOD.NETBANKING]: {
-    label: "Net Banking",
-    description: "All major banks supported",
-    icon: "🏦",
-    popular: false,
-  },
-  [PAYMENT_METHOD.WALLET]: {
-    label: "Wallet",
-    description: "Amazon Pay, Mobikwik & more",
-    icon: "👛",
-    popular: false,
   },
   [PAYMENT_METHOD.COD]: {
     label: "Cash on Delivery",
     description: "Pay when your order arrives",
     icon: "💵",
-    popular: false,
   },
 };
 

@@ -25,7 +25,7 @@ const CheckoutPage = () => {
   } = useCart();
   const { createOrder, loading } = useOrder();
 
-  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHOD.UPI);
+  const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHOD.ONLINE);
   const { deliveryCharge: deliveryRate, freeDeliveryThreshold } = useDeliveryConfig();
 
   const deliveryCharge =
