@@ -119,7 +119,20 @@ const AppShell = ({ children }) => {
       </header>
 
       {/* ── Page content ─────────────────────────────────────────────────── */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        {children}
+
+        {/* ── Footer ──────────────────────────────────────────────────────── */}
+        <footer className="border-t border-slate-100 mt-8 py-6 px-4">
+          <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-4 text-xs text-slate-400">
+            <Link to="/contact" className="hover:text-[#009661] transition-colors">Contact Us</Link>
+            <span className="hidden sm:inline">·</span>
+            <Link to="/terms" className="hover:text-[#009661] transition-colors">Terms &amp; Conditions</Link>
+            <span className="hidden sm:inline">·</span>
+            <Link to="/refunds" className="hover:text-[#009661] transition-colors">Refunds &amp; Cancellations</Link>
+          </div>
+        </footer>
+      </main>
 
       {/* ── Mobile Bottom Nav ─────────────────────────────────────────────── */}
       <nav

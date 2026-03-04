@@ -23,6 +23,11 @@ import ProductsPage from "./features/products/pages/ProductsPage";
 import CartPage from "./features/cart/pages/CartPage";
 import ProfilePage from "./features/user/pages/ProfilePage";
 
+// ── Policy pages (public, no auth) ───────────────────────────────────────────
+const ContactUs = lazy(() => import("./pages/policy/ContactUs"));
+const TermsAndConditions = lazy(() => import("./pages/policy/TermsAndConditions"));
+const RefundsAndCancellations = lazy(() => import("./pages/policy/RefundsAndCancellations"));
+
 // ── Lazily loaded (only when user navigates to them) ─────────────────────────
 const CheckoutPage = lazy(() => import("./features/order/pages/CheckoutPage"));
 const PaymentProcessingPage = lazy(
@@ -85,6 +90,9 @@ function App() {
                     {/* ── Public ───────────────────────────────────────── */}
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/contact" element={<Suspense fallback={<PageLoader />}><ContactUs /></Suspense>} />
+                    <Route path="/terms" element={<Suspense fallback={<PageLoader />}><TermsAndConditions /></Suspense>} />
+                    <Route path="/refunds" element={<Suspense fallback={<PageLoader />}><RefundsAndCancellations /></Suspense>} />
                     <Route
                       path="/pending-approval"
                       element={

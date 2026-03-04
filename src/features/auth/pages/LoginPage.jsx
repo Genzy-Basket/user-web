@@ -55,9 +55,18 @@ const LoginPage = () => {
           </div>
         </div>
 
-        <p className="mt-8 text-center text-sm text-gray-500">
-          &copy; 2025 FreshMart. All rights reserved.
-        </p>
+        <div className="mt-8 text-center">
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-slate-400">
+            <Link to="/contact" className="hover:text-[#009661] transition-colors">Contact Us</Link>
+            <span>·</span>
+            <Link to="/terms" className="hover:text-[#009661] transition-colors">Terms &amp; Conditions</Link>
+            <span>·</span>
+            <Link to="/refunds" className="hover:text-[#009661] transition-colors">Refunds &amp; Cancellations</Link>
+          </div>
+          <p className="mt-3 text-sm text-gray-500">
+            &copy; 2025 FreshMart. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );
