@@ -3,7 +3,107 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" id="favicon" type="image/png" href="/Icon.png" />
+    <link rel="apple-touch-icon" href="/Icon.png" />
+    <script>
+      // Generate favicon with brand green background
+      (function () {
+        var img = new Image();
+        img.onload = function () {
+          var s = 64;
+          var c = document.createElement("canvas");
+          c.width = s;
+          c.height = s;
+          var ctx = c.getContext("2d");
+          // Green rounded-rect background
+          var r = 12;
+          ctx.fillStyle = "#099E0E";
+          ctx.beginPath();
+          ctx.moveTo(r, 0);
+          ctx.lineTo(s - r, 0);
+          ctx.quadraticCurveTo(s, 0, s, r);
+          ctx.lineTo(s, s - r);
+          ctx.quadraticCurveTo(s, s, s - r, s);
+          ctx.lineTo(r, s);
+          ctx.quadraticCurveTo(0, s, 0, s - r);
+          ctx.lineTo(0, r);
+          ctx.quadraticCurveTo(0, 0, r, 0);
+          ctx.closePath();
+          ctx.fill();
+          // Draw icon (white parts will show on green)
+          var pad = 8;
+          ctx.drawImage(img, pad, pad, s - pad * 2, s - pad * 2);
+          // Make green pixels white (icon is green on transparent)
+          var id = ctx.getImageData(0, 0, s, s);
+          var d = id.data;
+          for (var i = 0; i < d.length; i += 4) {
+            // If pixel is not the background green and has opacity
+            if (d[i + 3] > 0) {
+              var isIcon = !(d[i] === 9 && d[i + 1] === 158 && d[i + 2] === 14);
+              if (isIcon && d[i] > 50 && d[i + 1] > 80) {
+                d[i] = 255;
+                d[i + 1] = 255;
+                d[i + 2] = 255;
+              }
+            }
+          }
+          ctx.putImageData(id, 0, 0);
+          var link = document.getElementById("favicon");
+          link.href = c.toDataURL("image/png");
+        };
+        img.src = "/Icon.png";
+      })();
+    </script>
+    <meta name="theme-color" content="#099E0E" />
     <title>Genzy Basket</title>
+    <style>
+      /* ── Splash Screen ──────────────────────────────────────────────── */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #099e0e;
+        transition:
+          opacity 0.4s ease,
+          visibility 0.4s ease;
+      }
+      #splash.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #splash img {
+        width: min(60vw, 320px);
+        animation: splash-fade-in 0.6s ease-out;
+      }
+      #splash .splash-loader {
+        margin-top: 32px;
+        width: 36px;
+        height: 36px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: splash-spin 0.8s linear infinite;
+      }
+      @keyframes splash-fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
     <!-- SPA redirect script for GitHub Pages (works with 404.html) -->
     <script>
       (function (l) {
@@ -23,10 +123,16 @@
         }
       })(window.location);
     </script>
-    <script type="module" crossorigin src="/assets/index-WpScgQvm.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CQxrdd_I.css">
+    <script type="module" crossorigin src="/assets/index-DmiZcJ_x.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DshVFdQe.css">
   <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
+    <!-- Splash Screen -->
+    <div id="splash">
+      <img src="/full_logo_white_fg.png" alt="Genzy Basket" />
+      <div class="splash-loader"></div>
+    </div>
+
     <div id="root"></div>
   </body>
 </html>
