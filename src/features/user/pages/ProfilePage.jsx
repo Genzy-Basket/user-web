@@ -18,7 +18,6 @@ import {
   Calendar,
   CheckCircle,
   LogOut,
-  MessageCircle,
 } from "lucide-react";
 
 const ProfilePage = () => {
@@ -135,7 +134,7 @@ const ProfilePage = () => {
               {/* Download App */}
               <Link
                 to="/download"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-50 text-[#099E0E] rounded-xl hover:bg-[#099E0E] hover:text-white transition-all duration-200 font-bold border-2 border-emerald-100 shadow-sm"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-50 text-brand rounded-xl hover:bg-brand hover:text-white transition-all duration-200 font-bold border-2 border-emerald-100 shadow-sm"
               >
                 <span className="text-lg">📱</span>
                 Download App
@@ -188,17 +187,6 @@ const ProfilePage = () => {
           >
             <Users className="inline w-4 h-4 mr-2" />
             Members ({profile?.members?.length || 0})
-          </button>
-          <button
-            onClick={() => setActiveTab("contact")}
-            className={`px-6 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${
-              activeTab === "contact"
-                ? "bg-white text-emerald-600 shadow-lg border-2 border-emerald-200"
-                : "bg-white/50 text-slate-600 hover:bg-white border-2 border-transparent"
-            }`}
-          >
-            <MessageCircle className="inline w-4 h-4 mr-2" />
-            Contact Us
           </button>
         </div>
 
@@ -333,66 +321,6 @@ const ProfilePage = () => {
                 </div>
               )
             )}
-          </div>
-        )}
-        {/* Tab Content: Contact Us */}
-        {activeTab === "contact" && (
-          <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-8">
-            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3 mb-2">
-              <MessageCircle className="w-7 h-7 text-emerald-600" />
-              Contact Us
-            </h2>
-            <p className="text-slate-500 mb-8">
-              We're here to help! Reach out to us through any of the channels below.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Phone */}
-              <a
-                href="tel:+916363784290"
-                className="group flex items-center gap-5 p-6 bg-emerald-50 border-2 border-emerald-100 rounded-2xl hover:bg-emerald-600 hover:border-emerald-600 transition-all duration-200"
-              >
-                <div className="w-14 h-14 rounded-xl bg-emerald-600 group-hover:bg-white flex items-center justify-center shrink-0 transition-colors">
-                  <Phone className="w-6 h-6 text-white group-hover:text-emerald-600 transition-colors" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-emerald-700 group-hover:text-emerald-100 uppercase tracking-wide mb-1 transition-colors">
-                    Call Us
-                  </p>
-                  <p className="text-lg font-bold text-slate-800 group-hover:text-white transition-colors">
-                    +91 63637 84290
-                  </p>
-                  <p className="text-sm text-slate-500 group-hover:text-emerald-100 transition-colors">
-                    Tap to call
-                  </p>
-                </div>
-              </a>
-
-              {/* Email */}
-              <a
-                href="mailto:nandishhmn@gmail.com"
-                className="group flex items-center gap-5 p-6 bg-teal-50 border-2 border-teal-100 rounded-2xl hover:bg-teal-600 hover:border-teal-600 transition-all duration-200"
-              >
-                <div className="w-14 h-14 rounded-xl bg-teal-600 group-hover:bg-white flex items-center justify-center shrink-0 transition-colors">
-                  <Mail className="w-6 h-6 text-white group-hover:text-teal-600 transition-colors" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-teal-700 group-hover:text-teal-100 uppercase tracking-wide mb-1 transition-colors">
-                    Email Us
-                  </p>
-                  <p className="text-base font-bold text-slate-800 group-hover:text-white transition-colors break-all">
-                    nandishhmn@gmail.com
-                  </p>
-                  <p className="text-sm text-slate-500 group-hover:text-teal-100 transition-colors">
-                    Tap to email
-                  </p>
-                </div>
-              </a>
-            </div>
-
-            <p className="text-center text-xs text-slate-400 mt-8">
-              We typically respond within 24 hours on business days.
-            </p>
           </div>
         )}
       </div>

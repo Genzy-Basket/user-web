@@ -32,7 +32,7 @@ const DownloadApp = () => {
       <div className="max-w-2xl mx-auto px-4 py-10">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#099E0E] mb-8 hover:underline"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand mb-8 hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
@@ -40,7 +40,7 @@ const DownloadApp = () => {
 
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
           {/* Hero */}
-          <div className="bg-[#099E0E] px-6 py-10 sm:py-14 text-center">
+          <div className="bg-brand px-6 py-10 sm:py-14 text-center">
             <div className="w-20 h-20 mx-auto rounded-2xl bg-white/20 flex items-center justify-center mb-5 shadow-lg">
               <span className="text-5xl">🥬</span>
             </div>
@@ -57,17 +57,17 @@ const DownloadApp = () => {
             {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
               <div className="flex flex-col items-center text-center p-4 rounded-xl bg-emerald-50">
-                <Zap className="w-6 h-6 text-[#099E0E] mb-2" />
+                <Zap className="w-6 h-6 text-brand mb-2" />
                 <span className="text-sm font-bold text-slate-800">Fast Ordering</span>
                 <span className="text-xs text-slate-500 mt-1">Quick & easy checkout</span>
               </div>
               <div className="flex flex-col items-center text-center p-4 rounded-xl bg-emerald-50">
-                <Smartphone className="w-6 h-6 text-[#099E0E] mb-2" />
+                <Smartphone className="w-6 h-6 text-brand mb-2" />
                 <span className="text-sm font-bold text-slate-800">Native App</span>
                 <span className="text-xs text-slate-500 mt-1">Smooth experience</span>
               </div>
               <div className="flex flex-col items-center text-center p-4 rounded-xl bg-emerald-50">
-                <ShieldCheck className="w-6 h-6 text-[#099E0E] mb-2" />
+                <ShieldCheck className="w-6 h-6 text-brand mb-2" />
                 <span className="text-sm font-bold text-slate-800">Secure Payments</span>
                 <span className="text-xs text-slate-500 mt-1">Safe & trusted</span>
               </div>
@@ -78,8 +78,8 @@ const DownloadApp = () => {
               href={primary.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full py-4 bg-[#099E0E] text-white rounded-xl font-bold text-lg
-                hover:bg-[#078A0C] transition-all shadow-lg shadow-emerald-200
+              className="flex items-center justify-center gap-3 w-full py-4 bg-brand text-white rounded-xl font-bold text-lg
+                hover:bg-brand-dark transition-all shadow-lg shadow-emerald-200
                 active:scale-[0.98]"
             >
               <Download className="w-6 h-6" />
@@ -109,17 +109,17 @@ const DownloadApp = () => {
                       href={variant.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between gap-4 w-full p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-[#099E0E] hover:bg-emerald-50 transition-all group"
+                      className="flex items-center justify-between gap-4 w-full p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-brand hover:bg-emerald-50 transition-all group"
                     >
                       <div>
-                        <p className="text-sm font-bold text-slate-800 group-hover:text-[#099E0E]">
+                        <p className="text-sm font-bold text-slate-800 group-hover:text-brand">
                           {variant.label}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {variant.description} &middot; {variant.size}
                         </p>
                       </div>
-                      <Download className="w-5 h-5 text-slate-400 group-hover:text-[#099E0E] shrink-0" />
+                      <Download className="w-5 h-5 text-slate-400 group-hover:text-brand shrink-0" />
                     </a>
                   ))}
                 </div>

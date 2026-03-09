@@ -1,24 +1,16 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   ShoppingCart,
   User,
   Package,
-  LogOut,
   ClipboardList,
+  Headset,
 } from "lucide-react";
-import useAuth from "../features/auth/hooks/useAuth";
 import { useCart } from "../features/cart/hooks/useCart";
 
 const AppShell = ({ children }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
   const { itemCount } = useCart();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   const navItems = [
     { path: "/products", icon: Package, label: "Products" },
@@ -40,13 +32,12 @@ const AppShell = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-[#099E0E] flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-                <span className="text-2xl">🥬</span>
-              </div>
-              <span className="text-2xl font-black text-[#099E0E] tracking-tight">
-                Genzy Basket
-              </span>
+            <Link to="/" className="flex items-center group">
+              <img
+                src="/Logo.png"
+                alt="Genzy Basket"
+                className="h-10 transition-transform group-hover:scale-105"
+              />
             </Link>
 
             {/* Desktop Nav */}
@@ -60,12 +51,12 @@ const AppShell = ({ children }) => {
                     to={item.path}
                     className={`relative flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all ${
                       active
-                        ? "bg-emerald-50 text-[#099E0E]"
+                        ? "bg-brand-50 text-brand"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                     }`}
                   >
                     <Icon
-                      className={`w-5 h-5 ${active ? "fill-[#099E0E]/20" : ""}`}
+                      className={`w-5 h-5 ${active ? "fill-brand/20" : ""}`}
                     />
                     <span>{item.label}</span>
                     {item.badge > 0 && (
@@ -77,23 +68,17 @@ const AppShell = ({ children }) => {
                 );
               })}
 
-              <div className="ml-4 pl-4 border-l border-slate-200 flex items-center gap-4">
-                <div className="text-right hidden lg:block">
-                  <p className="text-sm font-bold text-slate-800">
-                    {user?.fullName || "User"}
-                  </p>
-                  <p className="text-xs text-slate-400 font-medium">
-                    {user?.email}
-                  </p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                  aria-label="Logout"
-                >
-                  <LogOut className="w-5 h-5" aria-hidden="true" />
-                </button>
-              </div>
+              <Link
+                to="/contact"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all ${
+                  isActive("/contact")
+                    ? "bg-brand-50 text-brand"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                }`}
+              >
+                <Headset className={`w-5 h-5 ${isActive("/contact") ? "fill-brand/20" : ""}`} />
+                <span>Contact Us</span>
+              </Link>
             </nav>
           </div>
         </div>
@@ -102,22 +87,16 @@ const AppShell = ({ children }) => {
       {/* ── Mobile Header ────────────────────────────────────────────────── */}
       <header className="md:hidden sticky top-0 z-40 bg-white border-b border-slate-200">
         <div className="px-4 flex items-center justify-between h-14">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-black text-[#099E0E]">Genzy Basket</span>
+          <Link to="/" className="flex items-center">
+            <img src="/Logo.png" alt="Genzy Basket" className="h-8" />
           </Link>
 
-          {/* Cart icon with badge — quick access from top header */}
           <Link
-            to="/cart"
-            className="relative p-2 rounded-lg text-slate-600"
-            aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
+            to="/contact"
+            className="p-2 rounded-lg text-slate-600"
+            aria-label="Customer Care"
           >
-            <ShoppingCart className="w-6 h-6" aria-hidden="true" />
-            {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-black rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center border-2 border-white shadow-sm">
-                {itemCount > 9 ? "9+" : itemCount}
-              </span>
-            )}
+            <Headset className="w-5 h-5" aria-hidden="true" />
           </Link>
         </div>
       </header>
@@ -131,28 +110,28 @@ const AppShell = ({ children }) => {
           <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-4 text-xs text-slate-400">
             <Link
               to="/download"
-              className="text-[#099E0E] font-semibold hover:text-[#078A0C] transition-colors"
+              className="text-brand font-semibold hover:text-brand-dark transition-colors"
             >
               Download App
             </Link>
             <span className="hidden sm:inline">·</span>
             <Link
               to="/contact"
-              className="hover:text-[#099E0E] transition-colors"
+              className="hover:text-brand transition-colors"
             >
               Contact Us
             </Link>
             <span className="hidden sm:inline">·</span>
             <Link
               to="/terms"
-              className="hover:text-[#099E0E] transition-colors"
+              className="hover:text-brand transition-colors"
             >
               Terms &amp; Conditions
             </Link>
             <span className="hidden sm:inline">·</span>
             <Link
               to="/refunds"
-              className="hover:text-[#099E0E] transition-colors"
+              className="hover:text-brand transition-colors"
             >
               Refunds &amp; Cancellations
             </Link>
@@ -174,13 +153,13 @@ const AppShell = ({ children }) => {
                 key={item.path}
                 to={item.path}
                 className={`relative flex flex-col items-center justify-center w-full h-full transition-all ${
-                  active ? "text-[#099E0E]" : "text-slate-400"
+                  active ? "text-brand" : "text-slate-400"
                 }`}
               >
                 <div className="relative mb-1">
                   <Icon
                     className={`w-6 h-6 transition-all duration-300 ${
-                      active ? "scale-110 fill-[#099E0E]" : ""
+                      active ? "scale-110 fill-brand" : ""
                     }`}
                     strokeWidth={active ? 2.5 : 2}
                   />

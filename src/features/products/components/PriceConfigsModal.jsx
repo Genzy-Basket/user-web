@@ -52,7 +52,7 @@ const PriceConfigsModal = (product, setShowConfigModal) => {
               return (
                 <div
                   key={config._id}
-                  className={`bg-slate-50 rounded-xl p-3 sm:p-4 border-2 transition-all ${"border-emerald-500 bg-emerald-50/50"}`}
+                  className={`bg-slate-50 rounded-xl p-3 sm:p-4 border-2 transition-all ${"border-brand bg-brand-50/50"}`}
                 >
                   <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
                     <div className="flex-1 min-w-0">
@@ -67,7 +67,7 @@ const PriceConfigsModal = (product, setShowConfigModal) => {
                         )}
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-lg sm:text-xl font-bold text-emerald-600">
+                        <span className="text-lg sm:text-xl font-bold text-brand">
                           ₹{config.price.toFixed(2)}
                         </span>
                         {config.mrp > config.price && (

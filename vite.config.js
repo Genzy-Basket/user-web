@@ -10,6 +10,21 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      manifest: {
+        name: "Genzy Basket",
+        short_name: "Genzy Basket",
+        theme_color: "#099E0E",
+        background_color: "#099E0E",
+        display: "standalone",
+        icons: [
+          {
+            src: "/Icon.png",
+            sizes: "254x254",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+        ],
+      },
       workbox: {
         // Cache all images automatically
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg}"],

@@ -51,7 +51,7 @@ const OrderDetailPage = () => {
     return (
       <Page>
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-[#099E0E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand" />
         </div>
       </Page>
     );
@@ -67,7 +67,7 @@ const OrderDetailPage = () => {
           {error && <p className="text-slate-500 text-sm mt-1">{error}</p>}
           <button
             onClick={() => navigate(ORDER_ROUTES.ORDERS)}
-            className="mt-6 px-6 py-2.5 bg-[#099E0E] text-white rounded-xl font-semibold text-sm hover:bg-[#078A0C] transition-all"
+            className="mt-6 px-6 py-2.5 bg-brand text-white rounded-xl font-semibold text-sm hover:bg-brand-dark transition-all"
           >
             My Orders
           </button>
@@ -138,7 +138,7 @@ const OrderDetailPage = () => {
       {order.deliveryAddress && (
         <section className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
-            <MapPin className="w-4 h-4 text-[#099E0E]" />
+            <MapPin className="w-4 h-4 text-brand" />
             Delivery Address
           </h3>
           <p className="text-sm text-slate-700">
@@ -153,7 +153,7 @@ const OrderDetailPage = () => {
       {/* Payment info */}
       <section className="bg-white rounded-2xl border border-slate-200 p-5">
         <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
-          <CreditCard className="w-4 h-4 text-[#099E0E]" />
+          <CreditCard className="w-4 h-4 text-brand" />
           Payment Info
         </h3>
         <div className="space-y-2">
@@ -191,7 +191,7 @@ const OrderDetailPage = () => {
       {/* Expected delivery */}
       {order.expectedDeliveryDate && !isCancelled && (
         <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-4">
-          <p className="text-sm text-[#099E0E] font-semibold">
+          <p className="text-sm text-brand font-semibold">
             🕐 Expected Delivery:{" "}
             {new Date(order.expectedDeliveryDate).toLocaleDateString("en-IN", {
               weekday: "long",
@@ -223,7 +223,7 @@ const OrderDetailPage = () => {
             </p>
             <textarea
               className="w-full border border-slate-200 rounded-xl p-3 text-sm resize-none
-                focus:outline-none focus:ring-2 focus:ring-[#099E0E] focus:border-transparent"
+                focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
               rows={3}
               placeholder="Reason for cancellation…"
               value={cancelReason}
@@ -275,7 +275,7 @@ const ProgressTracker = ({ currentStatus }) => {
         {/* connector line */}
         <div className="absolute top-3.5 left-3.5 right-3.5 h-0.5 bg-slate-100" />
         <div
-          className="absolute top-3.5 left-3.5 h-0.5 bg-[#099E0E] transition-all duration-500"
+          className="absolute top-3.5 left-3.5 h-0.5 bg-brand transition-all duration-500"
           style={{
             width:
               currentIdx <= 0
@@ -299,7 +299,7 @@ const ProgressTracker = ({ currentStatus }) => {
                   className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs transition-all
                     ${
                       done
-                        ? "bg-[#099E0E] border-[#099E0E] text-white shadow-sm shadow-emerald-200"
+                        ? "bg-brand border-brand text-white shadow-sm shadow-emerald-200"
                         : "bg-white border-slate-200 text-slate-400"
                     }
                     ${active ? "ring-4 ring-emerald-100" : ""}
@@ -309,7 +309,7 @@ const ProgressTracker = ({ currentStatus }) => {
                 </div>
                 <span
                   className={`text-[10px] font-semibold text-center max-w-[52px] leading-tight
-                    ${done ? "text-[#099E0E]" : "text-slate-400"}`}
+                    ${done ? "text-brand" : "text-slate-400"}`}
                 >
                   {step.label}
                 </span>

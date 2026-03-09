@@ -76,7 +76,7 @@ const PaymentProcessingPage = () => {
       <CenteredCard>
         <div className="relative w-20 h-20 mx-auto">
           <div className="absolute inset-0 rounded-full border-4 border-emerald-100" />
-          <div className="absolute inset-0 rounded-full border-4 border-[#099E0E] border-t-transparent animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-brand border-t-transparent animate-spin" />
           <span className="absolute inset-0 flex items-center justify-center text-2xl">
             💳
           </span>
@@ -100,7 +100,7 @@ const PaymentProcessingPage = () => {
   if (phase === PHASE.SUCCESS) {
     return (
       <CenteredCard>
-        <CheckCircle2 className="w-16 h-16 text-[#099E0E] mx-auto" />
+        <CheckCircle2 className="w-16 h-16 text-brand mx-auto" />
         <h1 className="mt-4 text-xl font-bold text-slate-800">
           Payment Confirmed!
         </h1>
@@ -173,7 +173,7 @@ const NavButton = ({ children, onClick, primary }) => (
     className={`mt-3 w-full py-3 rounded-xl font-semibold text-sm transition-all
       ${
         primary
-          ? "bg-[#099E0E] text-white hover:bg-[#078A0C] shadow-md shadow-emerald-100"
+          ? "bg-brand text-white hover:bg-brand-dark shadow-md shadow-emerald-100"
           : "bg-slate-100 text-slate-700 hover:bg-slate-200"
       }`}
   >

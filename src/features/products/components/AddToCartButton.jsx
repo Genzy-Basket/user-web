@@ -53,7 +53,7 @@ const AddToCartButton = ({
         <button
           onClick={handleAdd}
           disabled={isUpdating}
-          className={`w-full flex items-center justify-center bg-[#099E0E] text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-70 shadow-sm ${heightClass} ${textClass}`}
+          className={`w-full flex items-center justify-center bg-brand text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-70 shadow-sm ${heightClass} ${textClass}`}
         >
           {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
         </button>
@@ -64,10 +64,10 @@ const AddToCartButton = ({
   return (
     <div className="w-full flex justify-center">
       <div
-        className={`w-full flex items-center justify-between bg-[#099E0E] relative rounded-xl p-1 shadow-sm transition-all ${heightClass}`}
+        className={`w-full flex items-center justify-between bg-brand relative rounded-xl p-1 shadow-sm transition-all ${heightClass}`}
       >
         {isUpdating && (
-          <div className="absolute inset-0 bg-[#099E0E]/40 backdrop-blur-[1px] rounded-xl flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-brand/40 backdrop-blur-[1px] rounded-xl flex items-center justify-center z-10">
             <Loader2 className="w-4 h-4 animate-spin text-white" />
           </div>
         )}
@@ -76,14 +76,17 @@ const AddToCartButton = ({
         <button
           onClick={(e) => handleUpdate(e, "decrement")}
           disabled={isUpdating}
-          className="h-full aspect-square rounded-lg bg-white flex items-center justify-center text-[#099E0E] active:scale-90 transition-all"
+          className="h-full aspect-square rounded-lg bg-white flex items-center justify-center text-brand active:scale-90 transition-all"
         >
           <Minus className="w-4 h-4" strokeWidth={3} />
         </button>
 
-        <div>
-          <span className={`text-white font-medium ${textClass}`}>
-            {quantity + " x " + config?.displayLabel}
+        <div className="flex items-baseline gap-0.5">
+          <span className={`text-white font-bold ${textClass}`}>
+            {quantity}
+          </span>
+          <span className="text-white/80 text-[10px]">
+            {"x " + config?.displayLabel}
           </span>
         </div>
 
@@ -91,7 +94,7 @@ const AddToCartButton = ({
         <button
           onClick={(e) => handleUpdate(e, "increment")}
           disabled={isUpdating}
-          className="h-full aspect-square rounded-lg bg-white flex items-center justify-center text-[#099E0E] active:scale-90 transition-all"
+          className="h-full aspect-square rounded-lg bg-white flex items-center justify-center text-brand active:scale-90 transition-all"
         >
           <Plus className="w-4 h-4" strokeWidth={3} />
         </button>

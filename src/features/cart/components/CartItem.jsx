@@ -38,8 +38,8 @@ const CartItem = ({ item }) => {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-emerald-50">
-              <Package className="w-8 h-8 text-emerald-600" />
+            <div className="w-full h-full flex items-center justify-center bg-brand-50">
+              <Package className="w-8 h-8 text-brand" />
             </div>
           )}
         </div>
@@ -81,7 +81,7 @@ const CartItem = ({ item }) => {
                 )}
               </div>
               {itemSavings > 0 && (
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded w-fit uppercase">
+                <span className="text-[10px] font-bold text-brand bg-brand-50 px-1.5 py-0.5 rounded w-fit uppercase">
                   Saved ₹{itemSavings}
                 </span>
               )}

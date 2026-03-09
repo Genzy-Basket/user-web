@@ -52,7 +52,7 @@ const OrderDetailPage = lazy(
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 rounded-full border-4 border-[#099E0E] border-t-transparent animate-spin" />
+      <div className="w-12 h-12 rounded-full border-4 border-brand border-t-transparent animate-spin" />
       <p className="text-slate-500 text-sm font-medium">Loading…</p>
     </div>
   </div>

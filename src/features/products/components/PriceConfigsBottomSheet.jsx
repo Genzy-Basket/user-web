@@ -73,7 +73,7 @@ const PriceConfigsBottomSheet = ({ product, onClose }) => {
                     )}
                   </div>
                   <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className="text-base font-bold text-emerald-600">
+                    <span className="text-base font-bold text-brand">
                       ₹{config.price}
                     </span>
                     {config.mrp > config.price && (

@@ -15,7 +15,7 @@ const PaymentMethodSelector = ({ selected, onChange, disabled = false }) => {
             className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl border-2 text-left transition-all duration-150
               ${
                 isSelected
-                  ? "border-[#099E0E] bg-emerald-50 shadow-sm"
+                  ? "border-brand bg-emerald-50 shadow-sm"
                   : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
               }
               ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -28,7 +28,7 @@ const PaymentMethodSelector = ({ selected, onChange, disabled = false }) => {
             <div className="flex-1 min-w-0">
               <span
                 className={`font-semibold text-sm ${
-                  isSelected ? "text-[#099E0E]" : "text-slate-800"
+                  isSelected ? "text-brand" : "text-slate-800"
                 }`}
               >
                 {config.label}
@@ -40,10 +40,10 @@ const PaymentMethodSelector = ({ selected, onChange, disabled = false }) => {
 
             <div
               className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all
-                ${isSelected ? "border-[#099E0E]" : "border-slate-300"}`}
+                ${isSelected ? "border-brand" : "border-slate-300"}`}
             >
               {isSelected && (
-                <div className="w-2.5 h-2.5 rounded-full bg-[#099E0E]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-brand" />
               )}
             </div>
           </button>

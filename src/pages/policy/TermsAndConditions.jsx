@@ -13,7 +13,7 @@ const TermsAndConditions = () => (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-[#099E0E] mb-6 hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-brand mb-6 hover:underline"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Home
@@ -102,14 +102,14 @@ const TermsAndConditions = () => (
             For questions about these terms, contact us at{" "}
             <a
               href="mailto:nandishhmn@gmail.com"
-              className="text-[#099E0E] hover:underline"
+              className="text-brand hover:underline"
             >
               nandishhmn@gmail.com
             </a>{" "}
             or call{" "}
             <a
               href="tel:+916363784290"
-              className="text-[#099E0E] hover:underline"
+              className="text-brand hover:underline"
             >
               +91 6363784290
             </a>

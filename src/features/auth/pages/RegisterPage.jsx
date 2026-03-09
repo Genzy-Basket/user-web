@@ -55,7 +55,7 @@ const RegisterPage = () => {
       <div className="max-w-2xl w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#099E0E] rounded-2xl mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4 shadow-lg">
             <span className="text-3xl">🥬</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
@@ -108,10 +108,10 @@ const RegisterPage = () => {
           )}
 
           {/* Info Banner */}
-          <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div className="mb-6 bg-brand-50 border border-brand-100 rounded-xl p-4">
             <div className="flex items-start">
               <svg
-                className="w-5 h-5 text-emerald-600 mt-0.5 mr-3 shrink-0"
+                className="w-5 h-5 text-brand mt-0.5 mr-3 shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -139,7 +139,7 @@ const RegisterPage = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="font-medium text-[#099E0E] hover:text-[#078A0C] transition-colors"
+                className="font-medium text-brand hover:text-brand-dark transition-colors"
               >
                 Login here
               </Link>
@@ -150,7 +150,7 @@ const RegisterPage = () => {
         {/* Download App Banner */}
         <Link
           to="/download"
-          className="mt-6 flex items-center justify-center gap-2 w-full py-3 bg-white border-2 border-[#099E0E] text-[#099E0E] rounded-xl font-bold text-sm hover:bg-[#099E0E] hover:text-white transition-all"
+          className="mt-6 flex items-center justify-center gap-2 w-full py-3 bg-white border-2 border-brand text-brand rounded-xl font-bold text-sm hover:bg-brand hover:text-white transition-all"
         >
           <span className="text-lg">📱</span>
           Download our Android App

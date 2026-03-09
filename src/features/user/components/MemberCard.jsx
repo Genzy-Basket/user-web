@@ -39,7 +39,7 @@ const MemberCard = ({ member, onEdit, onDelete, loading }) => {
         <div className="flex gap-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(member)}
-            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 focus:bg-slate-200 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-[#099E0E]"
+            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 focus:bg-slate-200 text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand"
             disabled={loading}
             aria-label={`Edit ${member.fullName}`}
           >

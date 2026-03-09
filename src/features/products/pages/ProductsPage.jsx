@@ -73,7 +73,7 @@ const ProductsPage = () => {
   if (loading && products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-500">
-        <div className="w-16 h-16 border-4 border-slate-200 border-t-emerald-600 rounded-full animate-spin mb-6"></div>
+        <div className="w-16 h-16 border-4 border-slate-200 border-t-brand rounded-full animate-spin mb-6"></div>
         <p className="text-lg font-medium">Loading fresh products...</p>
       </div>
     );
@@ -100,7 +100,7 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="relative bg-[#099E0E] overflow-hidden">
+      <div className="relative bg-brand overflow-hidden">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div
@@ -132,7 +132,7 @@ const ProductsPage = () => {
                 <Search
                   className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5
                  transition-all duration-300
-                 text-[#099E0E] group-focus-within:text-slate-900 group-focus-within:scale-110"
+                 text-brand group-focus-within:text-slate-900 group-focus-within:scale-110"
                 />
                 <input
                   type="text"
@@ -162,7 +162,7 @@ const ProductsPage = () => {
             onClick={() => updateFilters({ category: null })}
             className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
               !filters.category
-                ? "bg-[#099E0E] text-white border-[#099E0E] shadow-sm"
+                ? "bg-brand text-white border-brand shadow-sm"
                 : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
             }`}
           >
@@ -174,7 +174,7 @@ const ProductsPage = () => {
               onClick={() => handleCategoryChange(category)}
               className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold capitalize border transition-all ${
                 filters.category === category
-                  ? "bg-[#099E0E] text-white border-[#099E0E] shadow-sm"
+                  ? "bg-brand text-white border-brand shadow-sm"
                   : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
               }`}
             >

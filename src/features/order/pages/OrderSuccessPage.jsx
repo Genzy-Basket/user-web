@@ -41,7 +41,7 @@ const OrderSuccessPage = () => {
         {/* Success hero */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
           {/* Top green strip */}
-          <div className="bg-[#099E0E] px-6 py-8 text-center text-white">
+          <div className="bg-brand px-6 py-8 text-center text-white">
             <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4 ring-4 ring-white/30">
               <CheckCircle2 className="w-10 h-10 text-white" />
             </div>
@@ -88,7 +88,7 @@ const OrderSuccessPage = () => {
               </>
             ) : loading ? (
               <div className="flex items-center gap-3 py-2">
-                <div className="w-4 h-4 border-2 border-[#099E0E] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                 <span className="text-slate-500 text-sm">
                   Loading order details…
                 </span>
@@ -115,8 +115,8 @@ const OrderSuccessPage = () => {
         <div className="space-y-3">
           <button
             onClick={() => navigate(ORDER_ROUTES.ORDER_DETAIL(orderId))}
-            className="w-full py-4 bg-[#099E0E] text-white rounded-xl font-bold
-              hover:bg-[#078A0C] transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100"
+            className="w-full py-4 bg-brand text-white rounded-xl font-bold
+              hover:bg-brand-dark transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100"
           >
             <Package className="w-5 h-5" />
             Track Order
@@ -149,7 +149,7 @@ const Page = ({ children }) => (
 const BackButton = ({ children, onClick }) => (
   <button
     onClick={onClick}
-    className="px-6 py-2 bg-[#099E0E] text-white rounded-xl font-semibold hover:bg-[#078A0C] transition-all"
+    className="px-6 py-2 bg-brand text-white rounded-xl font-semibold hover:bg-brand-dark transition-all"
   >
     {children}
   </button>
@@ -163,7 +163,7 @@ const MetaRow = ({ label, value, mono, accent }) => (
         mono
           ? "font-mono text-slate-700"
           : accent
-            ? "text-[#099E0E]"
+            ? "text-brand"
             : "text-slate-800"
       }`}
     >

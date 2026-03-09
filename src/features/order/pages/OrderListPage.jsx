@@ -81,7 +81,7 @@ const OrdersListPage = () => {
               className={`snap-start shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all border
                 ${
                   activeTab === tab.key
-                    ? "bg-[#099E0E] text-white border-[#099E0E] shadow-sm"
+                    ? "bg-brand text-white border-brand shadow-sm"
                     : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
                 }`}
             >
@@ -101,7 +101,7 @@ const OrdersListPage = () => {
         {/* Loading */}
         {loading && orders.length === 0 && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-[#099E0E]" />
+            <Loader2 className="w-8 h-8 animate-spin text-brand" />
           </div>
         )}
 
@@ -118,7 +118,7 @@ const OrdersListPage = () => {
             {!activeTab && (
               <button
                 onClick={() => navigate("/products")}
-                className="mt-6 px-6 py-2.5 bg-[#099E0E] text-white rounded-xl font-semibold text-sm hover:bg-[#078A0C] transition-all"
+                className="mt-6 px-6 py-2.5 bg-brand text-white rounded-xl font-semibold text-sm hover:bg-brand-dark transition-all"
               >
                 Start Shopping
               </button>
@@ -174,7 +174,7 @@ const OrdersListPage = () => {
               Please tell us why you want to cancel.
             </p>
             <textarea
-              className="w-full border border-slate-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#099E0E] focus:border-transparent"
+              className="w-full border border-slate-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
               rows={3}
               placeholder="Reason for cancellation…"
               value={cancelReason}

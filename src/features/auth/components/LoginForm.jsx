@@ -54,7 +54,7 @@ const LoginForm = ({ onSubmit, loading }) => {
           name="userId"
           value={formData.userId}
           onChange={handleChange}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#099E0E] focus:border-transparent transition-colors ${
+          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
             errors.userId ? "border-red-500" : "border-slate-200"
           }`}
           placeholder="Enter phone number or email"
@@ -79,7 +79,7 @@ const LoginForm = ({ onSubmit, loading }) => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#099E0E] focus:border-transparent transition-colors ${
+            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
               errors.password ? "border-red-500" : "border-slate-200"
             }`}
             placeholder="Enter your password"
@@ -106,7 +106,7 @@ const LoginForm = ({ onSubmit, loading }) => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#099E0E] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#078A0C] focus:outline-none focus:ring-2 focus:ring-[#099E0E] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full bg-brand text-white py-3 px-4 rounded-xl font-bold hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? "Logging in..." : "Login"}
       </button>

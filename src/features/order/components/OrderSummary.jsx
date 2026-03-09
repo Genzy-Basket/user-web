@@ -87,14 +87,14 @@ const OrderSummary = ({
           <Row
             label="Discount"
             value={`−₹${savings.toFixed(2)}`}
-            accent="text-[#099E0E]"
+            accent="text-brand"
           />
         )}
 
         <Row
           label="Delivery"
           value={charge === 0 ? "FREE" : `₹${charge.toFixed(2)}`}
-          accent={charge === 0 ? "text-[#099E0E]" : undefined}
+          accent={charge === 0 ? "text-brand" : undefined}
         />
 
         {/* Free delivery nudge */}
@@ -112,7 +112,7 @@ const OrderSummary = ({
         </div>
 
         {savings > 0 && (
-          <p className="text-[11px] text-[#099E0E] font-semibold text-center">
+          <p className="text-[11px] text-brand font-semibold text-center">
             🎉 You save ₹{savings.toFixed(2)} on this order
           </p>
         )}

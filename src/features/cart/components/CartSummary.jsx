@@ -32,7 +32,7 @@ const CartSummary = () => {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-6">
       <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-        <ShoppingCart className="w-5 h-5 text-[#099E0E]" />
+        <ShoppingCart className="w-5 h-5 text-brand" />
         Order Summary
       </h2>
 
@@ -59,7 +59,7 @@ const CartSummary = () => {
 
         {/* Discount */}
         {(totalSavings ?? 0) > 0 && (
-          <div className="flex items-center justify-between text-[#099E0E] py-1">
+          <div className="flex items-center justify-between text-brand py-1">
             <span className="flex items-center gap-2 text-sm font-semibold">
               <TrendingDown className="w-4 h-4" />
               Discount
@@ -74,7 +74,7 @@ const CartSummary = () => {
         <div className="flex items-center justify-between text-slate-600">
           <span className="text-sm font-medium">Delivery</span>
           {deliveryCharge === 0 ? (
-            <span className="font-bold text-[#099E0E] text-sm">FREE</span>
+            <span className="font-bold text-brand text-sm">FREE</span>
           ) : (
             <span className="font-semibold text-slate-700 text-sm">
               ₹{deliveryCharge.toFixed(2)}
@@ -104,7 +104,7 @@ const CartSummary = () => {
 
         {/* Savings badge */}
         {(totalSavings ?? 0) > 0 && (
-          <div className="bg-emerald-50 text-[#099E0E] rounded-lg p-3 border border-emerald-100 mt-4">
+          <div className="bg-emerald-50 text-brand rounded-lg p-3 border border-emerald-100 mt-4">
             <p className="text-xs font-bold flex items-center justify-center gap-1">
               <span className="text-base">🎉</span> You are saving ₹
               {(totalSavings ?? 0).toFixed(2)} on this order
@@ -127,8 +127,8 @@ const CartSummary = () => {
       <button
         onClick={() => navigate(ORDER_ROUTES.CHECKOUT)}
         disabled={loading || itemCount === 0 || ordersClosed}
-        className="w-full py-4 px-6 bg-[#099E0E] text-white rounded-xl font-bold text-lg
-          hover:bg-[#078A0C] transition-all shadow-lg shadow-emerald-100
+        className="w-full py-4 px-6 bg-brand text-white rounded-xl font-bold text-lg
+          hover:bg-brand-dark transition-all shadow-lg shadow-emerald-100
           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
           flex items-center justify-center gap-2"
       >

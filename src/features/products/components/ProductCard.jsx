@@ -79,7 +79,7 @@ const ProductCard = ({ product, activeConfig }) => {
             {!activeConfig && isMultiConfig && (
               <span className="text-xs text-slate-400">from</span>
             )}
-            <span className="text-emerald-700 font-bold">
+            <span className="text-brand-dark font-bold">
               ₹{displayConfig?.price}
             </span>
             {displayConfig?.mrp > displayConfig?.price && (
@@ -110,7 +110,7 @@ const ProductCard = ({ product, activeConfig }) => {
             <button
               onClick={openSheet}
               disabled={!isAvailable}
-              className="w-full h-10 flex items-center justify-center bg-[#099E0E] text-white font-bold rounded-xl transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-10 flex items-center justify-center bg-brand text-white font-bold rounded-xl transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add
             </button>

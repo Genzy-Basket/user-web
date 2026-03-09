@@ -83,7 +83,7 @@ const CheckoutPage = () => {
       cashfreeInstance.checkout({
         paymentSessionId,
         redirectTarget: "_self", // redirect in same tab
-        returnUrl: `${window.location.origin}/#${ORDER_ROUTES.PAYMENT_PROCESSING}?app_order_id=${order.orderId}`,
+        returnUrl: `${window.location.origin}${ORDER_ROUTES.PAYMENT_PROCESSING}?app_order_id=${order.orderId}`,
       });
 
       // Navigate to processing page immediately so the user sees feedback
@@ -137,12 +137,12 @@ const CheckoutPage = () => {
             <section className="bg-white rounded-2xl border border-slate-200 p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-slate-800 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#099E0E]" />
+                  <MapPin className="w-4 h-4 text-brand" />
                   Delivery Address
                 </h2>
                 <button
                   onClick={() => navigate("/profile")}
-                  className="text-xs font-semibold text-[#099E0E] hover:underline"
+                  className="text-xs font-semibold text-brand hover:underline"
                 >
                   {address ? "Change" : "Add Address"}
                 </button>
@@ -190,8 +190,8 @@ const CheckoutPage = () => {
             <button
               onClick={handlePlaceOrder}
               disabled={loading || !address || itemCount === 0}
-              className="w-full py-4 bg-[#099E0E] text-white rounded-xl font-bold text-lg
-                hover:bg-[#078A0C] transition-all shadow-lg shadow-emerald-100
+              className="w-full py-4 bg-brand text-white rounded-xl font-bold text-lg
+                hover:bg-brand-dark transition-all shadow-lg shadow-emerald-100
                 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2"
             >

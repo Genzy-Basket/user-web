@@ -6,7 +6,7 @@ const ContactUs = () => (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-[#099E0E] mb-6 hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-brand mb-6 hover:underline"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Home
@@ -22,12 +22,12 @@ const ContactUs = () => (
 
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-            <Phone className="w-5 h-5 text-[#099E0E] mt-0.5 shrink-0" />
+            <Phone className="w-5 h-5 text-brand mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-bold text-slate-700">Phone</p>
               <a
                 href="tel:+916363784290"
-                className="text-sm text-[#099E0E] hover:underline"
+                className="text-sm text-brand hover:underline"
               >
                 +91 6363784290
               </a>
@@ -35,12 +35,12 @@ const ContactUs = () => (
           </div>
 
           <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-            <Mail className="w-5 h-5 text-[#099E0E] mt-0.5 shrink-0" />
+            <Mail className="w-5 h-5 text-brand mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-bold text-slate-700">Email</p>
               <a
                 href="mailto:nandishhmn@gmail.com"
-                className="text-sm text-[#099E0E] hover:underline"
+                className="text-sm text-brand hover:underline"
               >
                 nandishhmn@gmail.com
               </a>
@@ -48,7 +48,7 @@ const ContactUs = () => (
           </div>
 
           <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
-            <MapPin className="w-5 h-5 text-[#099E0E] mt-0.5 shrink-0" />
+            <MapPin className="w-5 h-5 text-brand mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-bold text-slate-700">Business</p>
               <p className="text-sm text-slate-600">Genzy Basket</p>
