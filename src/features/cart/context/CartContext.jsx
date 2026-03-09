@@ -61,35 +61,35 @@ export const CartProvider = ({ children }) => {
   const addItem = useCallback(
     async (productId, priceConfigId, quantity = 1) => {
       const response = await runAddItem(productId, priceConfigId, quantity);
-      if (response?.success) await fetchCart();
+      if (response?.success) setCart(response.data);
       return response;
     },
-    [runAddItem, fetchCart],
+    [runAddItem],
   );
 
   const updateQuantity = useCallback(
     async (cartItemId, action) => {
       const response = await runUpdateQuantity(cartItemId, action);
-      if (response?.success) await fetchCart();
+      if (response?.success) setCart(response.data);
       return response;
     },
-    [runUpdateQuantity, fetchCart],
+    [runUpdateQuantity],
   );
 
   const removeItem = useCallback(
     async (cartItemId) => {
       const response = await runRemoveItem(cartItemId);
-      if (response?.success) await fetchCart();
+      if (response?.success) setCart(response.data);
       return response;
     },
-    [runRemoveItem, fetchCart],
+    [runRemoveItem],
   );
 
   const clearCart = useCallback(async () => {
     const response = await runClearCart();
-    if (response?.success) await fetchCart();
+    if (response?.success) setCart(response.data);
     return response;
-  }, [runClearCart, fetchCart]);
+  }, [runClearCart]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -134,20 +134,38 @@ export const CartProvider = ({ children }) => {
     );
   }, [cart]);
 
-  const value = {
-    cart,
-    loading,
-    error,
-    fetchCart,
-    addItem,
-    updateQuantity,
-    removeItem,
-    clearCart,
-    getCartItem,
-    isInCart,
-    ...totals,
-    isEmpty: !cart?.items?.length,
-  };
+  const isEmpty = !cart?.items?.length;
+
+  const value = useMemo(
+    () => ({
+      cart,
+      loading,
+      error,
+      fetchCart,
+      addItem,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      getCartItem,
+      isInCart,
+      ...totals,
+      isEmpty,
+    }),
+    [
+      cart,
+      loading,
+      error,
+      fetchCart,
+      addItem,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      getCartItem,
+      isInCart,
+      totals,
+      isEmpty,
+    ],
+  );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

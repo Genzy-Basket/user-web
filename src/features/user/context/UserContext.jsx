@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import userAPI from "../../../api/endpoints/user.api";
 import { useApiCall } from "../../../api/use.apiCall";
@@ -99,19 +99,37 @@ export const UserProvider = ({ children }) => {
 
   const clearError = useCallback(() => setError(null), []);
 
-  const value = {
-    profile,
-    loading,
-    error,
-    clearError,
-    fetchProfile,
-    saveAddress,
-    addMember,
-    updateMember,
-    removeMember,
-    hasAddress: !!profile?.address,
-    hasMembers: (profile?.members?.length ?? 0) > 0,
-  };
+  const hasAddress = !!profile?.address;
+  const hasMembers = (profile?.members?.length ?? 0) > 0;
+
+  const value = useMemo(
+    () => ({
+      profile,
+      loading,
+      error,
+      clearError,
+      fetchProfile,
+      saveAddress,
+      addMember,
+      updateMember,
+      removeMember,
+      hasAddress,
+      hasMembers,
+    }),
+    [
+      profile,
+      loading,
+      error,
+      clearError,
+      fetchProfile,
+      saveAddress,
+      addMember,
+      updateMember,
+      removeMember,
+      hasAddress,
+      hasMembers,
+    ],
+  );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

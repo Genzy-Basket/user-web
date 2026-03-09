@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import authAPI from "../../../api/endpoints/auth.api";
 
 export const AuthContext = createContext(null);
@@ -86,18 +86,37 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("auth:logout", handle401);
   }, []);
 
-  const value = {
-    user,
-    loading,
-    error,
-    login,
-    logout,
-    register,
-    isAuthenticated: !!token,
-    isApproved: user?.accountStatus === "approved",
-    isPending: user?.accountStatus === "pending",
-    clearError: () => setError(null),
-  };
+  const isAuthenticated = !!token;
+  const isApproved = user?.accountStatus === "approved";
+  const isPending = user?.accountStatus === "pending";
+  const clearError = useCallback(() => setError(null), []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      error,
+      login,
+      logout,
+      register,
+      isAuthenticated,
+      isApproved,
+      isPending,
+      clearError,
+    }),
+    [
+      user,
+      loading,
+      error,
+      login,
+      logout,
+      register,
+      isAuthenticated,
+      isApproved,
+      isPending,
+      clearError,
+    ],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

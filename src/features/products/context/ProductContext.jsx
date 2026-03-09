@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import productsApi from "../../../api/endpoints/products.api";
 import { useApiCall } from "../../../api/use.apiCall";
 
@@ -76,17 +76,30 @@ export const ProductProvider = ({ children }) => {
     [products],
   );
 
-  const value = {
-    products,
-    loading,
-    filters,
-    fetchProducts,
-    getProductById,
-    updateFilters,
-    resetFilters,
-    getFilteredProducts,
-    getCategories,
-  };
+  const value = useMemo(
+    () => ({
+      products,
+      loading,
+      filters,
+      fetchProducts,
+      getProductById,
+      updateFilters,
+      resetFilters,
+      getFilteredProducts,
+      getCategories,
+    }),
+    [
+      products,
+      loading,
+      filters,
+      fetchProducts,
+      getProductById,
+      updateFilters,
+      resetFilters,
+      getFilteredProducts,
+      getCategories,
+    ],
+  );
 
   return (
     <ProductContext.Provider value={value}>{children}</ProductContext.Provider>
