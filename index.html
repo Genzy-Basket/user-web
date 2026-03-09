@@ -1,13 +1,32 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>veggi</title>
-      <script type="module" crossorigin src="/veggi-cart/assets/index-BAqz-taF.js"></script>
-      <link rel="stylesheet" crossorigin href="/veggi-cart/assets/index-B8whyH4H.css">
-    <link rel="manifest" href="/veggi-cart/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/veggi-cart/registerSW.js"></script></head>
-    <body>
-        <div id="root"></div>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genzy Basket</title>
+    <!-- SPA redirect script for GitHub Pages (works with 404.html) -->
+    <script>
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash,
+          );
+        }
+      })(window.location);
+    </script>
+    <script type="module" crossorigin src="/assets/index-F74Jidwe.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CQxrdd_I.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
