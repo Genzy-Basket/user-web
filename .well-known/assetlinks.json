@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.genzybasket.app",
+    "sha256_cert_fingerprints": [
+      "93:FA:E8:CF:ED:E7:48:69:CE:98:D3:C9:1B:C5:59:E2:09:7E:CB:9F:B2:5B:66:C1:11:A2:1A:EE:89:4F:0A:63"
+    ]
+  }
+}]
