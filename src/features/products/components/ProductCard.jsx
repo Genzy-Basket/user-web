@@ -1,12 +1,14 @@
 import { useState, memo } from "react";
 import AddToCartButton from "./AddToCartButton";
 import PriceConfigsBottomSheet from "./PriceConfigsBottomSheet";
+import ProductDetailOverlay from "./ProductDetailOverlay";
 
 // activeConfig — when a specific config for this product is in cart,
 //   the parent renders one card per in-cart config with activeConfig set.
 // No activeConfig — none of this product's configs are in cart; show Add.
 const ProductCard = ({ product, activeConfig }) => {
   const [showSheet, setShowSheet] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
   const isMultiConfig = product.priceConfigs?.length > 1;
   const isAvailable = product.available !== false;
@@ -19,39 +21,59 @@ const ProductCard = ({ product, activeConfig }) => {
       product.priceConfigs[0],
     );
 
-  const discount =
+  const savingsAmount =
     displayConfig?.mrp > displayConfig?.price
-      ? ((displayConfig.mrp - displayConfig.price) / displayConfig.mrp) * 100
+      ? displayConfig.mrp - displayConfig.price
       : 0;
 
-  const openSheet = () => {
+  const openDetail = () => setShowDetail(true);
+
+  // Multi-config "Add" button: open bottom sheet, not detail overlay
+  const openSheet = (e) => {
+    e.stopPropagation();
     if (!isAvailable) return;
     setShowSheet(true);
   };
 
   return (
     <>
-      <div className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden hover:shadow-xl transition-all">
-        {/* Image */}
-        <div className="relative aspect-square overflow-hidden">
+      <div
+        className={`bg-white rounded-xl border-2 border-slate-200 overflow-hidden hover:shadow-xl transition-all ${
+          !isAvailable ? "opacity-60 grayscale" : ""
+        }`}
+      >
+        {/* Image — click opens detail */}
+        <div
+          className="relative aspect-4/3 overflow-hidden cursor-pointer group/img"
+          onClick={openDetail}
+        >
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105"
             loading="lazy"
           />
 
-          {discount > 0 && isAvailable && (
+          {savingsAmount > 0 && isAvailable && (
             <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-              {discount.toFixed(0)}% OFF
+              ₹{savingsAmount} OFF
             </div>
           )}
 
-          {/* Out of stock overlay */}
+          {/* Out of stock pill */}
           {!isAvailable && (
-            <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
-              <span className="bg-white text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+            <div className="absolute inset-0 flex items-end justify-center pb-3">
+              <span className="bg-white/95 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                 Out of Stock
+              </span>
+            </div>
+          )}
+
+          {/* Detail hint on hover */}
+          {isAvailable && (
+            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors flex items-center justify-center">
+              <span className="opacity-0 group-hover/img:opacity-100 transition-opacity bg-white/90 text-slate-700 text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">
+                View details
               </span>
             </div>
           )}
@@ -59,24 +81,34 @@ const ProductCard = ({ product, activeConfig }) => {
 
         {/* Info */}
         <div className="p-3">
-          <div className="flex items-center justify-between mb-1">
-            {/* Show config label when in cart, otherwise show category */}
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded capitalize">
-              {activeConfig ? activeConfig.displayLabel : product.category}
-            </span>
+          {/* Badge row: always show category; if activeConfig also show the config label */}
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <div className="flex items-center gap-1 min-w-0">
+              {/* <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded capitalize truncate">
+                {product.category}
+              </span> */}
+              {activeConfig && (
+                <span className="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 rounded truncate">
+                  {activeConfig.displayLabel}
+                </span>
+              )}
+            </div>
             {product.isVeg && (
-              <span className="w-3 h-3 border border-green-600 flex items-center justify-center">
-                <span className="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+              <span className="shrink-0 w-3.5 h-3.5 border border-green-600 flex items-center justify-center rounded-sm">
+                <span className="w-2 h-2 bg-green-600 rounded-full" />
               </span>
             )}
           </div>
 
-          <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2">
+          {/* Name — click opens detail */}
+          <h3
+            className="font-bold text-slate-800 text-sm mb-1 line-clamp-2 cursor-pointer hover:text-brand transition-colors"
+            onClick={openDetail}
+          >
             {product.name}
           </h3>
 
           <div className="flex items-center gap-2 mb-3">
-            {/* "from" prefix only on the Add card for multi-config */}
             {!activeConfig && isMultiConfig && (
               <span className="text-xs text-slate-400">from</span>
             )}
@@ -106,12 +138,12 @@ const ProductCard = ({ product, activeConfig }) => {
             />
           )}
 
-          {/* No activeConfig, multi config → "Add" opens sheet (button only, no card click) */}
+          {/* No activeConfig, multi config → "Add" opens bottom sheet */}
           {!activeConfig && isMultiConfig && (
             <button
               onClick={openSheet}
               disabled={!isAvailable}
-              className="w-full h-10 flex items-center justify-center bg-brand text-white font-bold rounded-xl transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-8 sm:h-9 text-xs sm:text-sm flex items-center justify-center bg-brand text-white font-bold rounded-xl transition-all active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Add
             </button>
@@ -119,10 +151,19 @@ const ProductCard = ({ product, activeConfig }) => {
         </div>
       </div>
 
+      {/* Bottom sheet — for choosing a config to add */}
       {showSheet && (
         <PriceConfigsBottomSheet
           product={product}
           onClose={() => setShowSheet(false)}
+        />
+      )}
+
+      {/* Detail overlay — image/name click; does NOT open alongside sheet */}
+      {showDetail && !showSheet && (
+        <ProductDetailOverlay
+          product={product}
+          onClose={() => setShowDetail(false)}
         />
       )}
     </>

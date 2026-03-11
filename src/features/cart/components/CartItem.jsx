@@ -1,34 +1,36 @@
-import { memo } from "react";
-import { Trash2, Package, Loader2 } from "lucide-react";
+import { memo, useState } from "react";
+import { Trash2, Package } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import AddToCartButton from "../../products/components/AddToCartButton";
 
 const CartItem = ({ item }) => {
-  const { removeItem, loading: globalLoading } = useCart();
+  const { removeItem } = useCart();
+  const [removing, setRemoving] = useState(false);
 
-  // 1. Derive data from populated productId
   const product = item.productId;
-
-  // 2. Find the specific config used in this cart item
   const config = product?.priceConfigs?.find(
     (c) => c._id === item.priceConfigId || c.id === item.priceConfigId,
   );
 
-  // Safety check: If product or config isn't found (due to sync/delete lag)
   if (!product || !config) return null;
 
   const handleRemove = async () => {
-    await removeItem(item._id);
+    if (removing) return;
+    setRemoving(true);
+    try {
+      await removeItem(item._id);
+    } finally {
+      setRemoving(false);
+    }
   };
 
-  // Calculations
   const unitPrice = config.price;
   const mrp = config.mrp;
   const itemTotal = unitPrice * item.quantity;
   const itemSavings = (mrp - unitPrice) * item.quantity;
 
   return (
-    <div className="bg-white rounded-xl border-2 border-slate-200 p-3 sm:p-5 hover:shadow-md transition-all group relative overflow-hidden">
+    <div className="bg-white rounded-xl border-2 border-slate-200 p-3 sm:p-5 hover:shadow-md transition-all relative overflow-hidden">
       <div className="flex gap-4">
         {/* Product Image */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
@@ -50,19 +52,19 @@ const CartItem = ({ item }) => {
         <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-slate-800 text-base sm:text-lg truncate">
+              <h3 className="font-bold text-slate-800 text-base sm:text-lg line-clamp-2">
                 {product.name}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
                 {config.displayLabel || `${config.value} ${config.unit}`}
               </p>
             </div>
 
-            {/* Remove Icon — always visible on mobile, hover-only on desktop */}
+            {/* Remove — always visible, per-item loading */}
             <button
               onClick={handleRemove}
-              disabled={globalLoading}
-              className="p-2 rounded-lg text-slate-300 hover:text-red-600 hover:bg-red-50 focus:text-red-600 focus:bg-red-50 transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 focus:opacity-100"
+              disabled={removing}
+              className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 focus:text-red-600 focus:bg-red-50 transition-all disabled:opacity-40 shrink-0"
               aria-label={`Remove ${product.name} from cart`}
             >
               <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -89,8 +91,8 @@ const CartItem = ({ item }) => {
               )}
             </div>
 
-            {/* Reusing AddToCartButton for Quantity Controls */}
-            <div className="scale-90 origin-right sm:scale-100">
+            {/* Qty controls — no transform scaling hack */}
+            <div className="w-32">
               <AddToCartButton
                 product={product}
                 config={config}
@@ -106,7 +108,7 @@ const CartItem = ({ item }) => {
           Item Subtotal
         </span>
         <span className="font-bold text-slate-800">
-          ₹{itemTotal.toFixed(2)}
+          ₹{itemTotal}
         </span>
       </div>
     </div>

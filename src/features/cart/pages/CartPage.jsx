@@ -4,8 +4,16 @@ import { useCart } from "../hooks/useCart";
 import { useDeliveryConfig } from "../../delivery/context/DeliveryConfigContext";
 import CartItem from "../components/CartItem";
 import CartSummary from "../components/CartSummary";
-import { ShoppingCart, AlertCircle, Trash2 } from "lucide-react";
+import { ShoppingCart, AlertCircle, Trash2, Loader2 } from "lucide-react";
 import { ORDER_ROUTES } from "../../../constants/order.constants";
+
+const isPastCutoff = (cutoffHour, cutoffMinute) => {
+  const now = new Date();
+  return (
+    now.getHours() > cutoffHour ||
+    (now.getHours() === cutoffHour && now.getMinutes() >= cutoffMinute)
+  );
+};
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -19,11 +27,17 @@ const CartPage = () => {
     isEmpty,
   } = useCart();
 
-  const { deliveryCharge: deliveryRate, freeDeliveryThreshold } =
-    useDeliveryConfig();
+  const {
+    deliveryCharge: deliveryRate,
+    freeDeliveryThreshold,
+    orderCutoffHour,
+    orderCutoffMinute,
+  } = useDeliveryConfig();
 
+  // Single source of truth for delivery + grand total
   const deliveryCharge = (totalAmount ?? 0) >= freeDeliveryThreshold ? 0 : deliveryRate;
   const grandTotal = (totalAmount ?? 0) + deliveryCharge;
+  const ordersClosed = isPastCutoff(orderCutoffHour, orderCutoffMinute);
 
   const [confirmClear, setConfirmClear] = useState(false);
 
@@ -49,13 +63,19 @@ const CartPage = () => {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">My Cart</h1>
-              <p className="text-sm text-slate-500 mt-0.5">
-                {isEmpty
-                  ? "Your cart is empty"
-                  : `${itemCount} ${itemCount === 1 ? "item" : "items"} in your cart`}
-              </p>
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-2xl font-black text-slate-900">My Cart</h1>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  {isEmpty
+                    ? "Your cart is empty"
+                    : `${itemCount} ${itemCount === 1 ? "item" : "items"} in your cart`}
+                </p>
+              </div>
+              {/* Subtle loading spinner when cart has items and is updating */}
+              {!isEmpty && loading && (
+                <Loader2 className="w-5 h-5 text-brand animate-spin" />
+              )}
             </div>
 
             {!isEmpty && !confirmClear && (
@@ -131,15 +151,22 @@ const CartPage = () => {
         )}
       </div>
 
-      {/* Mobile sticky checkout bar */}
+      {/* Mobile sticky checkout bar — respects ordersClosed */}
       {!isEmpty && (
         <div className="lg:hidden fixed bottom-16 left-0 right-0 z-30 bg-white border-t border-slate-200 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
           <button
             onClick={() => navigate(ORDER_ROUTES.CHECKOUT)}
-            className="w-full py-3.5 bg-brand text-white rounded-xl font-bold text-base flex items-center justify-between px-5"
+            disabled={loading || ordersClosed}
+            className="w-full py-3.5 bg-brand text-white rounded-xl font-bold text-base flex items-center justify-between px-5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>{itemCount} {itemCount === 1 ? "item" : "items"}</span>
-            <span>Checkout · ₹{grandTotal.toFixed(2)}</span>
+            {ordersClosed ? (
+              <span className="w-full text-center">Orders Closed</span>
+            ) : (
+              <>
+                <span>{itemCount} {itemCount === 1 ? "item" : "items"}</span>
+                <span>Checkout · ₹{grandTotal % 1 === 0 ? grandTotal : grandTotal.toFixed(2)}</span>
+              </>
+            )}
           </button>
         </div>
       )}

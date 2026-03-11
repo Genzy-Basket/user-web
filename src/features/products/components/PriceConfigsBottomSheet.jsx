@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import AddToCartButton from "./AddToCartButton";
 
 const PriceConfigsBottomSheet = ({ product, onClose }) => {
+  const [closing, setClosing] = useState(false);
+
   // Lock body scroll while sheet is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -11,14 +13,25 @@ const PriceConfigsBottomSheet = ({ product, onClose }) => {
     };
   }, []);
 
+  const handleClose = () => {
+    setClosing(true);
+    // Wait for slide-down animation before unmounting
+    setTimeout(onClose, 280);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className={`absolute inset-0 bg-black/50 transition-opacity duration-280 ${closing ? "opacity-0" : "opacity-100"}`}
+        onClick={handleClose}
+      />
 
       {/* Sheet */}
       <div
-        className="relative bg-white w-full max-w-lg rounded-t-3xl animate-slide-up shadow-2xl max-h-[80vh] flex flex-col"
+        className={`relative bg-white w-full max-w-lg rounded-t-3xl shadow-2xl max-h-[80vh] flex flex-col ${
+          closing ? "animate-slide-up-out" : "animate-slide-up"
+        }`}
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {/* Drag handle */}
@@ -40,7 +53,7 @@ const PriceConfigsBottomSheet = ({ product, onClose }) => {
             <p className="text-xs text-slate-500 mt-0.5">Choose quantity</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2.5 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
           >
             <X className="w-5 h-5 text-slate-500" />
@@ -50,10 +63,8 @@ const PriceConfigsBottomSheet = ({ product, onClose }) => {
         {/* Config rows */}
         <div className="overflow-y-auto px-4 py-2 flex-1">
           {product.priceConfigs.map((config) => {
-            const discount =
-              config.mrp > config.price
-                ? ((config.mrp - config.price) / config.mrp) * 100
-                : 0;
+            const savingsAmount =
+              config.mrp > config.price ? config.mrp - config.price : 0;
 
             return (
               <div
@@ -66,9 +77,9 @@ const PriceConfigsBottomSheet = ({ product, onClose }) => {
                     <span className="text-sm font-semibold text-slate-800">
                       {config.displayLabel}
                     </span>
-                    {discount > 0 && (
+                    {savingsAmount > 0 && (
                       <span className="text-xs font-medium text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-full">
-                        {discount.toFixed(0)}% OFF
+                        ₹{savingsAmount} OFF
                       </span>
                     )}
                   </div>

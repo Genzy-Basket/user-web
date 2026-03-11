@@ -21,6 +21,7 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
 import PendingApprovalPage from "./features/auth/pages/PendingApprovalPage";
 import ProductsPage from "./features/products/pages/ProductsPage";
+const ProductDetailPage = lazy(() => import("./features/products/pages/ProductDetailPage"));
 const CartPage = lazy(() => import("./features/cart/pages/CartPage"));
 const ProfilePage = lazy(() => import("./features/user/pages/ProfilePage"));
 
@@ -150,6 +151,15 @@ function App() {
                           }
                         />
                       ))}
+
+                      <Route
+                        path="/products/:id"
+                        element={
+                          <LazyShell>
+                            <ProductDetailPage />
+                          </LazyShell>
+                        }
+                      />
 
                       <Route
                         path="/cart"

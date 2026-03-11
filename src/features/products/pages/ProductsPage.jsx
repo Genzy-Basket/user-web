@@ -201,17 +201,19 @@ const ProductsPage = () => {
             </span>
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={filters.availableOnly}
-              onChange={handleAvailableToggle}
-              className="w-4 h-4 rounded cursor-pointer accent-emerald-600"
+          <button
+            onClick={handleAvailableToggle}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-semibold transition-all ${
+              filters.availableOnly
+                ? "bg-brand text-white border-brand"
+                : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${filters.availableOnly ? "bg-white" : "bg-slate-400"}`}
             />
-            <span className="text-sm font-medium text-slate-600">
-              Available only
-            </span>
-          </label>
+            In Stock
+          </button>
         </div>
 
         {/* Products Grid */}
