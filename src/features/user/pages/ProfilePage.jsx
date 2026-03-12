@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import { useAuth } from "../../auth/hooks/useAuth";
@@ -24,7 +24,11 @@ import {
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { balance } = useWallet();
+  const { balance, fetchWallet } = useWallet();
+
+  useEffect(() => {
+    fetchWallet();
+  }, [fetchWallet]);
   const {
     profile,
     loading,

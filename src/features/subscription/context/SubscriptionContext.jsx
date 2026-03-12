@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import subscriptionAPI from "../../../api/endpoints/subscription.api";
 import { errorBus } from "../../../api/errorBus";
 
@@ -24,6 +24,11 @@ export function SubscriptionProvider({ children }) {
       setLoading(false);
     }
   }, []);
+
+  // Fetch once when the provider mounts (like ProductContext)
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   // ── Create subscription ────────────────────────────────────────────────────
   const createSubscription = useCallback(async (items, dates, paymentMethod) => {

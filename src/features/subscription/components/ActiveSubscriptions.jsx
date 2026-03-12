@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CalendarCheck, Package, Pause, Play, X, Loader2, SkipForward } from "lucide-react";
 import { useSubscription } from "../hooks/useSubscription";
 
@@ -19,7 +19,6 @@ const ActiveSubscriptions = ({ onNewSubscription }) => {
   const {
     subscriptions,
     loading,
-    fetchSubscriptions,
     pauseSubscription,
     resumeSubscription,
     cancelSubscription,
@@ -29,10 +28,6 @@ const ActiveSubscriptions = ({ onNewSubscription }) => {
   const [cancelTarget, setCancelTarget] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
   const [skipTarget, setSkipTarget] = useState(null); // { subscriptionId, dates[] }
-
-  useEffect(() => {
-    fetchSubscriptions();
-  }, [fetchSubscriptions]);
 
   const handlePause = async (subscriptionId) => {
     await pauseSubscription(subscriptionId);

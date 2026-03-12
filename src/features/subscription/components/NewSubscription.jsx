@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, ShoppingBasket, CalendarDays, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ShoppingBasket,
+  CalendarDays,
+  Loader2,
+} from "lucide-react";
 import { useProducts } from "../../products/hooks/useProducts";
 import { useWallet } from "../../wallet/hooks/useWallet";
 import { useSubscription } from "../hooks/useSubscription";
@@ -29,10 +34,13 @@ const loadCashfreeSdk = () =>
   });
 
 const NewSubscription = ({ onBack }) => {
-  const navigate = useNavigate();
   const { products: allProducts, loading: productsLoading } = useProducts();
   const { balance, fetchWallet } = useWallet();
-  const { createSubscription, verifyPayment, loading: subLoading } = useSubscription();
+  const {
+    createSubscription,
+    verifyPayment,
+    loading: subLoading,
+  } = useSubscription();
 
   const products = useMemo(
     () => allProducts.filter((p) => SUBSCRIPTION_PRODUCT_IDS.includes(p._id)),
@@ -60,13 +68,22 @@ const NewSubscription = ({ onBack }) => {
         (c) => (c._id || c.id) === sel.configId,
       );
       if (!config) continue;
-      items.push({ productId, productName: product.name, config, quantity: sel.quantity });
+      items.push({
+        productId,
+        productName: product.name,
+        config,
+        quantity: sel.quantity,
+      });
     }
     return items;
   }, [selections, products]);
 
   const dailyCost = useMemo(
-    () => selectedItems.reduce((sum, item) => sum + item.config.price * item.quantity, 0),
+    () =>
+      selectedItems.reduce(
+        (sum, item) => sum + item.config.price * item.quantity,
+        0,
+      ),
     [selectedItems],
   );
 
@@ -77,7 +94,7 @@ const NewSubscription = ({ onBack }) => {
       ...prev,
       [productId]: {
         configId,
-        quantity: configId ? (prev[productId]?.quantity || 1) : 0,
+        quantity: configId ? prev[productId]?.quantity || 1 : 0,
       },
     }));
   }, []);
@@ -114,17 +131,71 @@ const NewSubscription = ({ onBack }) => {
 
   const handlePrevMonth = useCallback(() => {
     setCalMonth((m) => {
-      if (m === 0) { setCalYear((y) => y - 1); return 11; }
+      if (m === 0) {
+        setCalYear((y) => y - 1);
+        return 11;
+      }
       return m - 1;
     });
   }, []);
 
   const handleNextMonth = useCallback(() => {
     setCalMonth((m) => {
-      if (m === 11) { setCalYear((y) => y + 1); return 0; }
+      if (m === 11) {
+        setCalYear((y) => y + 1);
+        return 0;
+      }
       return m + 1;
     });
   }, []);
+
+  const pollVerification = useCallback(
+    async (subscriptionId) => {
+      const MAX_DURATION = 30_000;
+      const INITIAL_INTERVAL = 2_000;
+      const MAX_INTERVAL = 5_000;
+      const start = Date.now();
+      let interval = INITIAL_INTERVAL;
+
+      // Immediate first check
+      try {
+        const res = await verifyPayment(subscriptionId);
+        if (res?.status === "success") return "success";
+        if (res?.status === "failed") return "failed";
+      } catch {
+        // fall through to polling
+      }
+
+      return new Promise((resolve) => {
+        const tick = async () => {
+          try {
+            const res = await verifyPayment(subscriptionId);
+            if (res?.status === "success") return resolve("success");
+            if (res?.status === "failed") return resolve("failed");
+          } catch {
+            // network blip — keep polling
+          }
+
+          if (Date.now() - start >= MAX_DURATION) {
+            // Final attempt
+            try {
+              const res = await verifyPayment(subscriptionId);
+              if (res?.status === "success") return resolve("success");
+            } catch {
+              // ignore
+            }
+            return resolve("timeout");
+          }
+
+          interval = Math.min(interval * 1.5, MAX_INTERVAL);
+          setTimeout(tick, interval);
+        };
+
+        setTimeout(tick, interval);
+      });
+    },
+    [verifyPayment],
+  );
 
   const handleSubscribe = async (paymentMethod) => {
     const items = selectedItems.map((item) => ({
@@ -146,7 +217,7 @@ const NewSubscription = ({ onBack }) => {
     }
 
     // Online payment — launch Cashfree
-    const { paymentSessionId, cashfreeOrderId, subscription } = result;
+    const { paymentSessionId, subscriptionId } = result;
     if (!paymentSessionId) {
       errorBus.emit("Payment session not available", "error");
       return;
@@ -155,32 +226,33 @@ const NewSubscription = ({ onBack }) => {
     try {
       const cashfree = await loadCashfreeSdk();
       const instance = cashfree({
-        mode: import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox",
+        mode:
+          import.meta.env.VITE_CASHFREE_ENV === "production"
+            ? "production"
+            : "sandbox",
       });
 
-      instance.checkout({
+      // _modal mode: checkout() resolves when modal closes
+      await instance.checkout({
         paymentSessionId,
         redirectTarget: "_modal",
-        returnUrl: window.location.href,
       });
 
-      // After payment modal closes, verify
-      window.addEventListener("focus", async function onFocus() {
-        window.removeEventListener("focus", onFocus);
-        setTimeout(async () => {
-          const verifyResult = await verifyPayment(subscription.subscriptionId);
-          if (verifyResult?.status === "success") {
-            errorBus.emit("Subscription created!", "success");
-            fetchWallet();
-            onBack();
-          } else if (verifyResult?.status === "pending") {
-            errorBus.emit("Payment is still processing. Check back shortly.", "info");
-            onBack();
-          } else {
-            errorBus.emit("Payment failed. Please try again.", "error");
-          }
-        }, 2000);
-      });
+      // Modal closed — poll for verification
+      const status = await pollVerification(subscriptionId);
+      if (status === "success") {
+        errorBus.emit("Subscription created!", "success");
+        fetchWallet();
+        onBack();
+      } else if (status === "timeout") {
+        errorBus.emit(
+          "Payment is still processing. Check back shortly.",
+          "info",
+        );
+        onBack();
+      } else {
+        errorBus.emit("Payment failed. Please try again.", "error");
+      }
     } catch {
       errorBus.emit("Could not launch payment", "error");
     }
@@ -211,7 +283,11 @@ const NewSubscription = ({ onBack }) => {
         className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-5 font-medium text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
-        {step === "products" ? "Back" : step === "schedule" ? "Back to Items" : "Back to Schedule"}
+        {step === "products"
+          ? "Back"
+          : step === "schedule"
+            ? "Back to Items"
+            : "Back to Schedule"}
       </button>
 
       {/* Step progress */}
@@ -228,16 +304,22 @@ const NewSubscription = ({ onBack }) => {
             <div key={key} className="flex items-center gap-2 flex-1">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                  isDone || isActive ? "bg-brand text-white" : "bg-slate-200 text-slate-400"
+                  isDone || isActive
+                    ? "bg-brand text-white"
+                    : "bg-slate-200 text-slate-400"
                 }`}
               >
                 <Icon className="w-4 h-4" />
               </div>
-              <span className={`text-xs font-semibold ${isActive ? "text-slate-800" : "text-slate-400"}`}>
+              <span
+                className={`text-xs font-semibold ${isActive ? "text-slate-800" : "text-slate-400"}`}
+              >
                 {label}
               </span>
               {idx < 1 && (
-                <div className={`flex-1 h-0.5 rounded-full ${isDone ? "bg-brand" : "bg-slate-200"}`} />
+                <div
+                  className={`flex-1 h-0.5 rounded-full ${isDone ? "bg-brand" : "bg-slate-200"}`}
+                />
               )}
             </div>
           );
@@ -249,7 +331,9 @@ const NewSubscription = ({ onBack }) => {
         <div className="space-y-4">
           {products.length === 0 && !productsLoading && (
             <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center">
-              <p className="text-slate-500 font-medium">No subscription products available</p>
+              <p className="text-slate-500 font-medium">
+                No subscription products available
+              </p>
             </div>
           )}
           {products.map((product) => {
@@ -275,10 +359,15 @@ const NewSubscription = ({ onBack }) => {
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-800 flex items-center justify-between">
               <span>
                 <span className="font-bold">₹{dailyCost}/day</span>
-                <span className="text-emerald-600 ml-1">· {selectedDates.size} days = ₹{dailyCost * selectedDates.size}</span>
+                <span className="text-emerald-600 ml-1">
+                  · {selectedDates.size} days = ₹
+                  {dailyCost * selectedDates.size}
+                </span>
               </span>
               {walletMaxDays > 0 && (
-                <span className="text-xs text-emerald-500">Wallet covers {walletMaxDays} days</span>
+                <span className="text-xs text-emerald-500">
+                  Wallet covers {walletMaxDays} days
+                </span>
               )}
             </div>
           )}
@@ -314,11 +403,14 @@ const NewSubscription = ({ onBack }) => {
             <div>
               <p className="text-sm font-bold text-slate-800">
                 {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""}
-                <span className="text-slate-400 font-medium ml-1">· ₹{dailyCost}/day</span>
+                <span className="text-slate-400 font-medium ml-1">
+                  · ₹{dailyCost}/day
+                </span>
               </p>
               {step === "schedule" && selectedDates.size > 0 && (
                 <p className="text-xs text-slate-500">
-                  {selectedDates.size} day{selectedDates.size !== 1 ? "s" : ""} · ₹{dailyCost * selectedDates.size} total
+                  {selectedDates.size} day{selectedDates.size !== 1 ? "s" : ""}{" "}
+                  · ₹{dailyCost * selectedDates.size} total
                 </p>
               )}
             </div>
