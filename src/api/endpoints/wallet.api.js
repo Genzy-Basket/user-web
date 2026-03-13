@@ -11,8 +11,8 @@ const walletAPI = {
     return response.data;
   },
 
-  verifyFunds: async (txnId) => {
-    const response = await apiClient.post("/wallet/verify", { txnId });
+  verifyFunds: async (cashfreeOrderId) => {
+    const response = await apiClient.post("/wallet/verify", { cashfreeOrderId });
     return response.data;
   },
 };

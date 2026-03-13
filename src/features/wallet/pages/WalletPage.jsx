@@ -1,29 +1,48 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { errorBus } from "../../../api/errorBus";
 
 const PRESETS = [500, 1000, 2000, 3000, 5000];
 
+// "idle" | "creating" | "paying" | "verifying" | "success" | "failed"
+const PHASE_LABELS = {
+  creating: "Opening payment gateway…",
+  paying: "Complete payment in the window…",
+  verifying: "Verifying payment…",
+};
+
 const WalletPage = () => {
   const navigate = useNavigate();
   const { balance, transactions, pagination, loading, fetchWallet, addFunds, verifyFunds } = useWallet();
   const [amount, setAmount] = useState("");
+  const [phase, setPhase] = useState("idle");
+  const [resultBalance, setResultBalance] = useState(null);
+
+  // Preload Cashfree SDK on mount so it's ready when needed
+  const sdkPromiseRef = useState(() => null);
+  const loadCashfreeSdk = () => {
+    if (window.Cashfree) return Promise.resolve(window.Cashfree);
+    if (!sdkPromiseRef[0]) {
+      sdkPromiseRef[0] = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+        script.onload = () => resolve(window.Cashfree);
+        script.onerror = () => {
+          sdkPromiseRef[0] = null;
+          reject(new Error("Failed to load Cashfree SDK"));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    return sdkPromiseRef[0];
+  };
 
   useEffect(() => {
     fetchWallet();
+    loadCashfreeSdk();
   }, [fetchWallet]);
-
-  const loadCashfreeSdk = () =>
-    new Promise((resolve, reject) => {
-      if (window.Cashfree) return resolve(window.Cashfree);
-      const script = document.createElement("script");
-      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-      script.onload = () => resolve(window.Cashfree);
-      script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
-      document.head.appendChild(script);
-    });
 
   const handleAddFunds = async () => {
     const num = parseFloat(amount);
@@ -32,47 +51,77 @@ const WalletPage = () => {
       return;
     }
 
-    const result = await addFunds(num);
-    if (!result) return;
-
-    const { paymentSessionId, cashfreeOrderId, txnId } = result;
-    if (!paymentSessionId || !cashfreeOrderId) {
-      errorBus.emit("Payment session not available", "error");
-      return;
-    }
-
     try {
-      const cashfree = await loadCashfreeSdk();
+      // Run API call and SDK load in parallel
+      setPhase("creating");
+      const [result, cashfree] = await Promise.all([
+        addFunds(num),
+        loadCashfreeSdk(),
+      ]);
+
+      if (!result) {
+        setPhase("idle");
+        return;
+      }
+
+      const { paymentSessionId, cashfreeOrderId } = result;
+      if (!paymentSessionId || !cashfreeOrderId) {
+        errorBus.emit("Payment session not available", "error");
+        setPhase("idle");
+        return;
+      }
+
       const instance = cashfree({
         mode: import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox",
       });
 
-      instance.checkout({
+      // Phase 3: Open payment modal
+      setPhase("paying");
+      await instance.checkout({
         paymentSessionId,
         redirectTarget: "_modal",
         returnUrl: window.location.href,
       });
 
-      // Listen for payment completion
-      // Cashfree web SDK redirects or shows modal — poll after a delay
-      const checkPayment = async () => {
-        const res = await verifyFunds(txnId);
-        if (res?.status === "success") {
-          setAmount("");
-          errorBus.emit("Funds added successfully!", "success");
-          fetchWallet();
-        }
-      };
+      // Phase 4: Verify payment (checkout promise resolved = modal closed)
+      setPhase("verifying");
 
-      // Wait for redirect back or modal close
-      window.addEventListener("focus", async function onFocus() {
-        window.removeEventListener("focus", onFocus);
-        setTimeout(checkPayment, 2000);
-      });
+      // Small delay to let Cashfree finalize on their end
+      await new Promise((r) => setTimeout(r, 1500));
+
+      const res = await verifyFunds(cashfreeOrderId);
+      if (res?.status === "success") {
+        setResultBalance(res.balance);
+        setPhase("success");
+        setAmount("");
+        fetchWallet();
+      } else if (res?.status === "pending") {
+        // Retry once more after a longer delay
+        await new Promise((r) => setTimeout(r, 3000));
+        const retry = await verifyFunds(cashfreeOrderId);
+        if (retry?.status === "success") {
+          setResultBalance(retry.balance);
+          setPhase("success");
+          setAmount("");
+          fetchWallet();
+        } else {
+          setPhase("failed");
+        }
+      } else {
+        setPhase("failed");
+      }
     } catch {
       errorBus.emit("Could not launch payment", "error");
+      setPhase("idle");
     }
   };
+
+  const resetPhase = () => {
+    setPhase("idle");
+    setResultBalance(null);
+  };
+
+  const isBusy = phase !== "idle" && phase !== "success" && phase !== "failed";
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
@@ -106,7 +155,47 @@ const WalletPage = () => {
         </div>
 
         {/* Add Funds */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6 relative overflow-hidden">
+          {/* Processing Overlay */}
+          {isBusy && (
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center gap-3">
+              <Loader2 className="w-8 h-8 text-brand animate-spin" />
+              <p className="text-sm font-semibold text-slate-700">{PHASE_LABELS[phase]}</p>
+            </div>
+          )}
+
+          {/* Success Overlay */}
+          {phase === "success" && (
+            <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center gap-3">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+              <p className="text-sm font-bold text-emerald-700">Funds added successfully!</p>
+              {resultBalance != null && (
+                <p className="text-xs text-slate-500">New balance: ₹{resultBalance.toFixed(2)}</p>
+              )}
+              <button
+                onClick={resetPhase}
+                className="mt-2 px-5 py-2 bg-brand text-white rounded-lg text-sm font-semibold"
+              >
+                Done
+              </button>
+            </div>
+          )}
+
+          {/* Failed Overlay */}
+          {phase === "failed" && (
+            <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center gap-3">
+              <XCircle className="w-10 h-10 text-red-400" />
+              <p className="text-sm font-bold text-red-600">Payment could not be verified</p>
+              <p className="text-xs text-slate-500">If money was deducted, it will be refunded automatically.</p>
+              <button
+                onClick={resetPhase}
+                className="mt-2 px-5 py-2 bg-brand text-white rounded-lg text-sm font-semibold"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
           <h2 className="font-bold text-slate-800 mb-1">Add Funds</h2>
           <p className="text-xs text-slate-500 mb-4">Min ₹500 · Max ₹5,000</p>
 
@@ -115,7 +204,8 @@ const WalletPage = () => {
               <button
                 key={p}
                 onClick={() => setAmount(String(p))}
-                className="px-4 py-2 bg-emerald-50 text-brand border border-emerald-200 rounded-full text-sm font-semibold hover:bg-emerald-100 transition-colors"
+                disabled={isBusy}
+                className="px-4 py-2 bg-emerald-50 text-brand border border-emerald-200 rounded-full text-sm font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ₹{p}
               </button>
@@ -130,14 +220,22 @@ const WalletPage = () => {
               placeholder="Enter amount"
               min="500"
               max="5000"
-              className="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-brand focus:outline-none text-sm font-medium"
+              disabled={isBusy}
+              className="flex-1 px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-brand focus:outline-none text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
             />
             <button
               onClick={handleAddFunds}
-              disabled={loading}
-              className="px-6 py-3 bg-brand text-white rounded-xl font-bold text-sm hover:bg-brand-dark transition-colors disabled:opacity-50 flex items-center gap-2"
+              disabled={isBusy || loading}
+              className="px-6 py-3 bg-brand text-white rounded-xl font-bold text-sm hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[120px] justify-center"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add Money"}
+              {isBusy ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing
+                </>
+              ) : (
+                "Add Money"
+              )}
             </button>
           </div>
         </div>

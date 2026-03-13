@@ -44,10 +44,10 @@ export function WalletProvider({ children }) {
     }
   }, []);
 
-  const verifyFunds = useCallback(async (txnId) => {
+  const verifyFunds = useCallback(async (cashfreeOrderId) => {
     setLoading(true);
     try {
-      const res = await walletAPI.verifyFunds(txnId);
+      const res = await walletAPI.verifyFunds(cashfreeOrderId);
       if (res.success && res.data.status === "success" && res.data.balance != null) {
         setBalance(res.data.balance);
       }
