@@ -9,6 +9,8 @@ const DEFAULTS = {
   orderCutoffMinute: 0,
   deliveryByHour: 7,
   deliveryByMinute: 30,
+  contactPhone: "",
+  contactEmail: "",
 };
 
 const DeliveryConfigContext = createContext(DEFAULTS);
@@ -30,6 +32,8 @@ export const DeliveryConfigProvider = ({ children }) => {
           ...(data.orderCutoffMinute != null && { orderCutoffMinute: data.orderCutoffMinute }),
           ...(data.deliveryByHour != null && { deliveryByHour: data.deliveryByHour }),
           ...(data.deliveryByMinute != null && { deliveryByMinute: data.deliveryByMinute }),
+          ...(data.contactPhone && { contactPhone: data.contactPhone }),
+          ...(data.contactEmail && { contactEmail: data.contactEmail }),
         }));
       })
       .catch(() => {

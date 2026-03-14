@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Package } from "lucide-react";
+import { ChevronRight, Package, RefreshCw, Loader2 } from "lucide-react";
 import OrderStatusBadge from "./OrderStatusBadge";
 import {
   ORDER_ROUTES,
   CANCELLABLE_STATUSES,
+  ORDER_STATUS,
 } from "../../../constants/order.constants";
+import { useCart } from "../../cart/hooks/useCart";
+
+const REORDERABLE_STATUSES = [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REFUNDED];
 
 const OrderCard = ({ order, onCancel }) => {
   const navigate = useNavigate();
@@ -23,6 +28,25 @@ const OrderCard = ({ order, onCancel }) => {
   });
 
   const canCancel = CANCELLABLE_STATUSES.includes(order.orderStatus);
+  const canReorder = REORDERABLE_STATUSES.includes(order.orderStatus);
+  const { addItem } = useCart();
+  const [reordering, setReordering] = useState(false);
+
+  const handleReorder = async (e) => {
+    e.stopPropagation();
+    setReordering(true);
+    try {
+      for (const item of order.items) {
+        const productId = item.productId?._id || item.productId;
+        await addItem(productId, item.priceConfigId, item.quantity);
+      }
+      navigate("/cart");
+    } catch {
+      // error toasted by cart context
+    } finally {
+      setReordering(false);
+    }
+  };
 
   return (
     <div
@@ -74,18 +98,34 @@ const OrderCard = ({ order, onCancel }) => {
         </div>
       </div>
 
-      {/* Cancel button — stops propagation so card click doesn't fire */}
-      {canCancel && onCancel && (
-        <div className="mt-3 pt-3 border-t border-slate-100">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCancel(order.orderId);
-            }}
-            className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
-          >
-            Cancel Order
-          </button>
+      {/* Action buttons */}
+      {(canCancel || canReorder) && (
+        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-4">
+          {canReorder && (
+            <button
+              onClick={handleReorder}
+              disabled={reordering}
+              className="text-xs font-semibold text-brand hover:text-brand-dark transition-colors flex items-center gap-1"
+            >
+              {reordering ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              Reorder
+            </button>
+          )}
+          {canCancel && onCancel && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel(order.orderId);
+              }}
+              className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
+            >
+              Cancel Order
+            </button>
+          )}
         </div>
       )}
     </div>

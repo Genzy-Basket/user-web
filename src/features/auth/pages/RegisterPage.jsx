@@ -37,7 +37,7 @@ const RegisterPage = () => {
       const result = await register(userData);
 
       if (result.success) {
-        if (result.data.isApproved === false) {
+        if (result.data.accountStatus !== "approved") {
           navigate("/pending-approval");
         } else {
           navigate("/");

@@ -1,5 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDeliveryConfig } from "../../features/delivery/context/DeliveryConfigContext";
 
 const Section = ({ title, children }) => (
   <div className="mb-6">
@@ -8,7 +9,12 @@ const Section = ({ title, children }) => (
   </div>
 );
 
-const RefundsAndCancellations = () => (
+const RefundsAndCancellations = () => {
+  const { contactPhone, contactEmail } = useDeliveryConfig();
+  const phone = contactPhone || "+916363784290";
+  const email = contactEmail || "nandishhmn@gmail.com";
+
+  return (
   <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
     <div className="max-w-2xl mx-auto px-4 py-10">
       <Link
@@ -38,17 +44,17 @@ const RefundsAndCancellations = () => (
             select the order you wish to cancel. If you face any issues, contact
             us at{" "}
             <a
-              href="mailto:nandishhmn@gmail.com"
+              href={`mailto:${email}`}
               className="text-brand hover:underline"
             >
-              nandishhmn@gmail.com
+              {email}
             </a>{" "}
             or call{" "}
             <a
-              href="tel:+916363784290"
+              href={`tel:${phone}`}
               className="text-brand hover:underline"
             >
-              +91 6363784290
+              {phone}
             </a>
             .
           </p>
@@ -92,17 +98,17 @@ const RefundsAndCancellations = () => (
           <p>
             For refund or cancellation queries, reach out to us at{" "}
             <a
-              href="mailto:nandishhmn@gmail.com"
+              href={`mailto:${email}`}
               className="text-brand hover:underline"
             >
-              nandishhmn@gmail.com
+              {email}
             </a>{" "}
             or call{" "}
             <a
-              href="tel:+916363784290"
+              href={`tel:${phone}`}
               className="text-brand hover:underline"
             >
-              +91 6363784290
+              {phone}
             </a>
             . We aim to resolve all queries within 48 hours.
           </p>
@@ -110,6 +116,7 @@ const RefundsAndCancellations = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default RefundsAndCancellations;

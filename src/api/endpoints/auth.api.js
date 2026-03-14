@@ -47,6 +47,11 @@ const authAPI = {
   isAuthenticated: () => {
     return !!localStorage.getItem("authToken");
   },
+
+  checkApprovalStatus: async (userId) => {
+    const response = await apiClient.get(`${AUTH_BASE}/approval-status/${userId}`);
+    return response.data;
+  },
 };
 
 export default authAPI;

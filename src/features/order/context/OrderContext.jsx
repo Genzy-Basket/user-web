@@ -48,12 +48,12 @@ export function OrderProvider({ children }) {
    *  - { success: true, order, paymentSessionId, cashfreeOrderId }  for online
    *  - { success: false, message }                    on error
    */
-  const createOrder = useCallback(async (paymentMethod) => {
+  const createOrder = useCallback(async (paymentMethod, customerNotes = null) => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await orderAPI.createOrder(paymentMethod);
+      const result = await orderAPI.createOrder(paymentMethod, customerNotes);
 
       if (!result.success)
         throw new Error(result.message || "Failed to create order");

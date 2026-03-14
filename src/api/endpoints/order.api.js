@@ -6,8 +6,10 @@ const orderAPI = {
    * For online payments, returns { order, paymentSessionId, cashfreeOrderId }.
    * For COD, returns { order }.
    */
-  createOrder: async (paymentMethod) => {
-    const response = await apiClient.post("/orders", { paymentMethod });
+  createOrder: async (paymentMethod, customerNotes = null) => {
+    const body = { paymentMethod };
+    if (customerNotes) body.customerNotes = customerNotes;
+    const response = await apiClient.post("/orders", body);
     return response.data;
   },
 

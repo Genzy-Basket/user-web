@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { useCart } from "../../cart/hooks/useCart";
 import ProductCard from "../components/ProductCard";
+import Skeleton from "../../../components/Skeleton";
 
 const ProductsPage = () => {
   const {
@@ -75,9 +76,31 @@ const ProductsPage = () => {
 
   if (loading && products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-500">
-        <div className="w-16 h-16 border-4 border-slate-200 border-t-brand rounded-full animate-spin mb-6"></div>
-        <p className="text-lg font-medium">Loading fresh products...</p>
+      <div className="min-h-screen">
+        <div className="bg-brand py-6 md:py-12 pb-10 rounded-b-[40px]">
+          <div className="max-w-7xl mx-auto px-4 text-center">
+            <Skeleton className="h-10 w-64 mx-auto mb-3 bg-white/20 rounded-xl" />
+            <Skeleton className="h-5 w-80 mx-auto mb-6 bg-white/15 rounded-lg" />
+            <Skeleton className="h-14 max-w-xl mx-auto bg-white/20 rounded-2xl" />
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex gap-2 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-9 w-20 shrink-0 rounded-full" />
+            ))}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-100 p-3">
+                <Skeleton className="w-full aspect-square rounded-xl mb-3" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-3 w-1/2 mb-3" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -1,28 +1,46 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useDeliveryConfig } from "../../delivery/context/DeliveryConfigContext";
+import authAPI from "../../../api/endpoints/auth.api";
 
 const PendingApprovalPage = () => {
   const navigate = useNavigate();
   const { user, logout, isApproved } = useAuth();
+  const { contactEmail } = useDeliveryConfig();
+  const supportEmail = contactEmail || "nandishhmn@gmail.com";
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    // If user is not authenticated, redirect to login
     if (!user) {
       navigate("/login", { replace: true });
       return;
     }
-
-    // If user is approved, redirect to home
     if (isApproved) {
       navigate("/", { replace: true });
     }
   }, [user, isApproved, navigate]);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const checkStatus = useCallback(async () => {
+    if (!user?._id) return;
+    setChecking(true);
+    try {
+      const res = await authAPI.checkApprovalStatus(user._id);
+      if (res.data?.isApproved) {
+        logout();
+        navigate("/login", { replace: true });
+      }
+    } catch {
+      // silently ignore — user can retry
+    } finally {
+      setChecking(false);
+    }
+  }, [user, logout, navigate]);
+
+  // Check approval status on mount
+  useEffect(() => {
+    checkStatus();
+  }, [checkStatus]);
 
   if (!user) {
     return null;
@@ -65,7 +83,7 @@ const PendingApprovalPage = () => {
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
             <div className="flex items-start">
               <svg
-                className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0"
+                className="w-5 h-5 text-amber-600 mt-0.5 mr-3 shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -129,14 +147,28 @@ const PendingApprovalPage = () => {
           {/* Actions */}
           <div className="space-y-3">
             <button
-              onClick={() => window.location.reload()}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              onClick={checkStatus}
+              disabled={checking}
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Refresh Status
+              {checking ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Checking...
+                </>
+              ) : (
+                "Check Status"
+              )}
             </button>
 
             <button
-              onClick={handleLogout}
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
               className="w-full px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
             >
               Logout
@@ -147,10 +179,10 @@ const PendingApprovalPage = () => {
           <p className="mt-6 text-xs text-gray-500">
             Need help? Contact support at{" "}
             <a
-              href="mailto:support@example.com"
+              href={`mailto:${supportEmail}`}
               className="text-indigo-600 hover:text-indigo-500"
             >
-              support@example.com
+              {supportEmail}
             </a>
           </p>
         </div>

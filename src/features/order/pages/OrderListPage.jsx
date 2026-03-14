@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Package, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useOrder } from "../hooks/useOrder";
 import OrderCard from "../components/OrderCard";
+import Skeleton from "../../../components/Skeleton";
 import {
   ORDER_STATUS,
   ORDER_STATUS_LABEL,
@@ -100,8 +101,23 @@ const OrdersListPage = () => {
 
         {/* Loading */}
         {loading && orders.length === 0 && (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-brand" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+                <div className="space-y-2 mb-3">
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -109,11 +125,16 @@ const OrdersListPage = () => {
         {!loading && orders.length === 0 && (
           <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
             <Package className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <h2 className="font-bold text-slate-700 text-lg">No orders yet</h2>
+            <h2 className="font-bold text-slate-700 text-lg">
+              {activeTab ? "Nothing here" : "No orders yet"}
+            </h2>
             <p className="text-slate-500 text-sm mt-1">
-              {activeTab
-                ? "No orders with this status."
-                : "You haven't placed any orders yet."}
+              {activeTab === ORDER_STATUS.PENDING && "You have no pending orders right now."}
+              {activeTab === ORDER_STATUS.CONFIRMED && "No confirmed orders at the moment."}
+              {activeTab === ORDER_STATUS.OUT_FOR_DELIVERY && "No orders on the way right now."}
+              {activeTab === ORDER_STATUS.DELIVERED && "No delivered orders yet."}
+              {activeTab === ORDER_STATUS.CANCELLED && "No cancelled orders — that's great!"}
+              {!activeTab && "You haven't placed any orders yet."}
             </p>
             {!activeTab && (
               <button
@@ -121,6 +142,14 @@ const OrdersListPage = () => {
                 className="mt-6 px-6 py-2.5 bg-brand text-white rounded-xl font-semibold text-sm hover:bg-brand-dark transition-all"
               >
                 Start Shopping
+              </button>
+            )}
+            {activeTab && (
+              <button
+                onClick={() => handleTabChange("")}
+                className="mt-6 px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-200 transition-all"
+              >
+                View All Orders
               </button>
             )}
           </div>

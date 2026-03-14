@@ -8,6 +8,7 @@ export const ORDER_STATUS = {
   PENDING: "pending",
   CONFIRMED: "confirmed",
   PROCESSING: "processing",
+  PACKED: "packed",
   OUT_FOR_DELIVERY: "out_for_delivery",
   DELIVERED: "delivered",
   CANCELLED: "cancelled",
@@ -18,6 +19,7 @@ export const ORDER_STATUS_LABEL = {
   [ORDER_STATUS.PENDING]: "Pending",
   [ORDER_STATUS.CONFIRMED]: "Confirmed",
   [ORDER_STATUS.PROCESSING]: "Processing",
+  [ORDER_STATUS.PACKED]: "Packed",
   [ORDER_STATUS.OUT_FOR_DELIVERY]: "Out for Delivery",
   [ORDER_STATUS.DELIVERED]: "Delivered",
   [ORDER_STATUS.CANCELLED]: "Cancelled",
@@ -43,6 +45,12 @@ export const ORDER_STATUS_STYLE = {
     text: "text-violet-700",
     border: "border-violet-200",
     dot: "bg-violet-400",
+  },
+  [ORDER_STATUS.PACKED]: {
+    bg: "bg-teal-50",
+    text: "text-teal-700",
+    border: "border-teal-200",
+    dot: "bg-teal-500",
   },
   [ORDER_STATUS.OUT_FOR_DELIVERY]: {
     bg: "bg-orange-50",
@@ -74,6 +82,7 @@ export const ORDER_STATUS_STYLE = {
 export const ORDER_PROGRESS_STEPS = [
   { status: ORDER_STATUS.CONFIRMED, label: "Confirmed", icon: "✓" },
   { status: ORDER_STATUS.PROCESSING, label: "Processing", icon: "⚙" },
+  { status: ORDER_STATUS.PACKED, label: "Packed", icon: "📦" },
   { status: ORDER_STATUS.OUT_FOR_DELIVERY, label: "On the way", icon: "🛵" },
   { status: ORDER_STATUS.DELIVERED, label: "Delivered", icon: "🏠" },
 ];
