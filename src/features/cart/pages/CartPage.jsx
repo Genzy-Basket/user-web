@@ -165,6 +165,7 @@ const CartPage = () => {
               <>
                 <span>{itemCount} {itemCount === 1 ? "item" : "items"}</span>
                 <span>Checkout · ₹{grandTotal % 1 === 0 ? grandTotal : grandTotal.toFixed(2)}</span>
+
               </>
             )}
           </button>

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { MapPin, ShieldCheck, ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import { useCart } from "../../cart/hooks/useCart";
 import { useOrder } from "../hooks/useOrder";
 import { useAuth } from "../../auth/hooks/useAuth";
+import { useUser } from "../../user/hooks/useUser";
 import PaymentMethodSelector from "../components/PaymentMethodSelector";
 import OrderSummary from "../components/OrderSummary";
 import {
@@ -15,7 +16,8 @@ import { useWallet } from "../../wallet/hooks/useWallet";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  useAuth();
+  const { profile } = useUser();
   const {
     cart,
     itemCount,
@@ -27,24 +29,24 @@ const CheckoutPage = () => {
   const { createOrder, loading } = useOrder();
   const { fetchWallet } = useWallet();
 
+  useEffect(() => { fetchWallet(); }, [fetchWallet]);
+
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHOD.ONLINE);
+  const [customerNotes, setCustomerNotes] = useState("");
   const { deliveryCharge: deliveryRate, freeDeliveryThreshold } = useDeliveryConfig();
 
   const deliveryCharge =
     (cartTotal ?? 0) >= freeDeliveryThreshold ? 0 : deliveryRate;
   const grandTotal = (cartTotal ?? 0) + deliveryCharge;
 
-  const address = user?.address;
+  const address = profile?.address;
 
   // ── Load Cashfree SDK ────────────────────────────────────────────────────
   const loadCashfreeSdk = () =>
     new Promise((resolve, reject) => {
       if (window.Cashfree) return resolve(window.Cashfree);
       const script = document.createElement("script");
-      script.src =
-        import.meta.env.VITE_CASHFREE_ENV === "production"
-          ? "https://sdk.cashfree.com/js/v3/cashfree.js"
-          : "https://sdk.cashfree.com/js/v3/cashfree.js"; // same URL, env set via config
+      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
       script.onload = () => resolve(window.Cashfree);
       script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
       document.head.appendChild(script);
@@ -57,7 +59,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    const result = await createOrder(paymentMethod);
+    const result = await createOrder(paymentMethod, customerNotes.trim() || null);
     if (!result.success) return; // error already toasted by context
 
     // COD or Wallet — backend already cleared cart; just navigate
@@ -165,6 +167,29 @@ const CheckoutPage = () => {
                   No delivery address found. Please add one before placing an
                   order.
                 </div>
+              )}
+            </section>
+
+            {/* Delivery Instructions */}
+            <section className="bg-white rounded-2xl border border-slate-200 p-5">
+              <h2 className="font-bold text-slate-800 flex items-center gap-2 mb-3">
+                <MessageSquare className="w-4 h-4 text-brand" />
+                Delivery Instructions
+                <span className="text-xs font-normal text-slate-400 ml-1">(optional)</span>
+              </h2>
+              <textarea
+                value={customerNotes}
+                onChange={(e) => setCustomerNotes(e.target.value)}
+                placeholder="e.g. Ring the doorbell, leave at the gate, no plastic bags..."
+                rows={2}
+                maxLength={200}
+                className="w-full border border-slate-200 rounded-xl p-3 text-sm resize-none
+                  focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-all"
+              />
+              {customerNotes.length > 0 && (
+                <p className="text-xs text-slate-400 mt-1 text-right">
+                  {customerNotes.length}/200
+                </p>
               )}
             </section>
 

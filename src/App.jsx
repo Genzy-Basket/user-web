@@ -53,6 +53,7 @@ const OrderDetailPage = lazy(
 );
 const WalletPage = lazy(() => import("./features/wallet/pages/WalletPage"));
 const SubscriptionPage = lazy(() => import("./features/subscription/pages/SubscriptionPage"));
+const SubscriptionDetailPage = lazy(() => import("./features/subscription/pages/SubscriptionDetailPage"));
 
 // ── Shared suspense fallback ──────────────────────────────────────────────────
 const PageLoader = () => (
@@ -199,6 +200,15 @@ function App() {
                         element={
                           <LazyShell>
                             <SubscriptionPage />
+                          </LazyShell>
+                        }
+                      />
+
+                      <Route
+                        path="/subscriptions/:subscriptionId"
+                        element={
+                          <LazyShell>
+                            <SubscriptionDetailPage />
                           </LazyShell>
                         }
                       />

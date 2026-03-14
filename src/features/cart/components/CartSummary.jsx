@@ -48,7 +48,7 @@ const CartSummary = () => {
   return (
     // max-h + overflow-y-auto ensures the panel scrolls on short viewports
     // so the checkout button is always reachable
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm sticky top-6 max-h-[calc(100dvh-8rem)] overflow-y-auto">
       <div className="p-6">
         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
           <ShoppingCart className="w-5 h-5 text-brand" />

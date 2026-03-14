@@ -304,7 +304,7 @@ const ProfilePage = () => {
                 <Users className="w-7 h-7 text-emerald-600" />
                 Family Members
               </h2>
-              {!isAddingMember && !editingMember && (
+              {!isAddingMember && !editingMember && (profile?.members?.length ?? 0) < 20 && (
                 <button
                   onClick={() => setIsAddingMember(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg shadow-emerald-200"

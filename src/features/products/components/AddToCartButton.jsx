@@ -17,7 +17,7 @@ const AddToCartButton = ({
   const quantity = cartItem ? cartItem.quantity : 0;
 
   // Mobile-first sizing: compact mode is xs, default grows on sm+
-  const heightClass = compact ? "h-7" : "h-8 sm:h-9";
+  const heightClass = compact ? "h-9 min-h-[44px]" : "h-9 sm:h-10";
   const textClass = compact ? "text-xs" : "text-xs sm:text-sm";
   const iconSize = "w-3 h-3 sm:w-4 sm:h-4";
 

@@ -4,8 +4,8 @@ import authAPI from "../../../api/endpoints/auth.api";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(authAPI.getCurrentUser);
-  const [token, setToken] = useState(authAPI.getToken);
+  const [user, setUser] = useState(() => authAPI.getCurrentUser());
+  const [token, setToken] = useState(() => authAPI.getToken());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -56,6 +56,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.register(userData);
       if (response.success) {
+        setUser(response.data);
+        setToken(authAPI.getToken());
         return { success: true, data: response.data };
       }
       throw new Error(response.message || "Registration failed");

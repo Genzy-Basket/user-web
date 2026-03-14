@@ -7,10 +7,15 @@ import {
   Loader2,
   AlertCircle,
   XCircle,
+  RefreshCw,
+  MessageSquare,
 } from "lucide-react";
 import { useOrder } from "../hooks/useOrder";
+import { useCart } from "../../cart/hooks/useCart";
+import orderAPI from "../../../api/endpoints/order.api";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderSummary from "../components/OrderSummary";
+import Skeleton from "../../../components/Skeleton";
 import {
   ORDER_PROGRESS_STEPS,
   ORDER_STATUS,
@@ -20,19 +25,44 @@ import {
   ORDER_ROUTES,
 } from "../../../constants/order.constants";
 
+const REORDERABLE_STATUSES = [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REFUNDED];
+
 const OrderDetailPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { fetchOrder, cancelOrder, loading, error } = useOrder();
+  const { addItem } = useCart();
 
   const [order, setOrder] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [reordering, setReordering] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
-    fetchOrder(orderId).then((o) => {
-      if (o) setOrder(o);
+    fetchOrder(orderId).then(async (o) => {
+      if (!o) return;
+      // If pending online payment, try to reconcile with Cashfree
+      if (
+        o.orderStatus === "pending" &&
+        o.payment?.method === "online" &&
+        o.payment?.status === "pending"
+      ) {
+        try {
+          const res = await orderAPI.verifyPayment(orderId);
+          if (res.success && res.data?.orderStatus === "confirmed") {
+            // Payment actually went through
+            setOrder(res.data);
+            return;
+          }
+          // Payment failed/expired — order will be cleaned up, go back to list
+          navigate(ORDER_ROUTES.ORDERS, { replace: true });
+          return;
+        } catch {
+          // Verification failed — show order as-is
+        }
+      }
+      setOrder(o);
     });
   }, [orderId, fetchOrder]);
 
@@ -46,12 +76,57 @@ const OrderDetailPage = () => {
     }
   };
 
+  const handleReorder = async () => {
+    setReordering(true);
+    try {
+      for (const item of order.items) {
+        const productId = item.productId?._id || item.productId;
+        await addItem(productId, item.priceConfigId, item.quantity);
+      }
+      navigate("/cart");
+    } catch {
+      // error toasted by cart context
+    } finally {
+      setReordering(false);
+    }
+  };
+
   // ── Loading ──────────────────────────────────────────────────────────────
   if (loading && !order) {
     return (
       <Page>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-brand" />
+        <div className="flex items-center gap-3 mb-6">
+          <Skeleton className="w-9 h-9 rounded-xl" />
+          <div>
+            <Skeleton className="h-5 w-32 mb-1" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <Skeleton className="h-6 w-20 rounded-full ml-auto" />
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-4">
+          <Skeleton className="h-4 w-28 mb-4" />
+          <div className="flex justify-between">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-1.5">
+                <Skeleton className="w-7 h-7 rounded-full" />
+                <Skeleton className="h-2 w-10" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-4">
+          <Skeleton className="h-4 w-32 mb-4" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-2">
+              <Skeleton className="h-3 w-40" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <Skeleton className="h-4 w-28 mb-4" />
+          <Skeleton className="h-3 w-full mb-2" />
+          <Skeleton className="h-3 w-2/3" />
         </div>
       </Page>
     );
@@ -80,6 +155,7 @@ const OrderDetailPage = () => {
     order.orderStatus,
   );
   const canCancel = CANCELLABLE_STATUSES.includes(order.orderStatus);
+  const canReorder = REORDERABLE_STATUSES.includes(order.orderStatus);
   const methodConfig = PAYMENT_METHOD_CONFIG[order.payment?.method];
 
   return (
@@ -133,6 +209,17 @@ const OrderDetailPage = () => {
         deliveryCharge={order.deliveryCharge}
         totalAmount={order.totalAmount}
       />
+
+      {/* Customer notes */}
+      {order.customerNotes && (
+        <section className="bg-white rounded-2xl border border-slate-200 p-5">
+          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
+            <MessageSquare className="w-4 h-4 text-brand" />
+            Delivery Instructions
+          </h3>
+          <p className="text-sm text-slate-600">{order.customerNotes}</p>
+        </section>
+      )}
 
       {/* Delivery address */}
       {order.deliveryAddress && (
@@ -202,7 +289,23 @@ const OrderDetailPage = () => {
         </div>
       )}
 
-      {/* Cancel CTA */}
+      {/* Action buttons */}
+      {canReorder && (
+        <button
+          onClick={handleReorder}
+          disabled={reordering}
+          className="w-full py-3 bg-brand text-white rounded-xl font-semibold text-sm
+            hover:bg-brand-dark transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {reordering ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <RefreshCw className="w-4 h-4" />
+          )}
+          Reorder
+        </button>
+      )}
+
       {canCancel && (
         <button
           onClick={() => setShowCancelModal(true)}
@@ -261,6 +364,7 @@ const statusOrder = [
   "pending",
   "confirmed",
   "processing",
+  "packed",
   "out_for_delivery",
   "delivered",
 ];

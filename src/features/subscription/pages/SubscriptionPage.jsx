@@ -22,12 +22,12 @@ const SubscriptionPage = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — full-width like app */}
         <div className="flex gap-2 mb-6">
           <button
             type="button"
             onClick={() => setActiveTab("active")}
-            className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-all border
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border text-center
               ${
                 activeTab === "active"
                   ? "bg-brand text-white border-brand shadow-sm"
@@ -39,7 +39,7 @@ const SubscriptionPage = () => {
           <button
             type="button"
             onClick={() => setActiveTab("new")}
-            className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-all border flex items-center gap-1.5
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border flex items-center justify-center gap-1.5
               ${
                 activeTab === "new"
                   ? "bg-brand text-white border-brand shadow-sm"

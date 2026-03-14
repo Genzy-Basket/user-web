@@ -46,6 +46,10 @@ const ProductCard = ({ product, activeConfig }) => {
         <div
           className="relative aspect-4/3 overflow-hidden cursor-pointer group/img"
           onClick={openDetail}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(); } }}
+          role="button"
+          tabIndex={0}
+          aria-label={`View ${product.name} details`}
         >
           <img
             src={product.imageUrl}

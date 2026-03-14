@@ -42,7 +42,7 @@ export function useApiCall(fn, options = {}) {
       } catch (err) {
         setError(err);
         if (!silent) {
-          errorBus.emit(err.message, "error");
+          errorBus.emit(String(err?.message || err || "Unknown error"), "error");
         }
         onError?.(err);
         return null;

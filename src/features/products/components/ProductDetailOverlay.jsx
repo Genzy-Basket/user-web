@@ -38,7 +38,7 @@ const ProductDetailOverlay = ({ product, onClose }) => {
       : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-280 ${closing ? "opacity-0" : "opacity-100"}`}

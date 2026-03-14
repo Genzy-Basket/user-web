@@ -48,7 +48,7 @@ const PaymentProcessingPage = () => {
       },
     });
 
-    return () => stopPolling();
+    return () => { stopPolling(); startedRef.current = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
