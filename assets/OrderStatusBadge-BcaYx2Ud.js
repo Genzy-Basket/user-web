@@ -1,2 +1,0 @@
-import{j as s,o as d,v as l}from"./index-NyMt2ZOn.js";const x=({status:t,size:r="md"})=>{const e=l[t]||{bg:"bg-slate-50",text:"text-slate-600",border:"border-slate-200",dot:"bg-slate-400"},o=d[t]||t,a=r==="sm"?"px-2 py-0.5 text-[11px]":"px-3 py-1 text-xs";return s.jsxs("span",{className:`inline-flex items-center gap-1.5 rounded-full border font-semibold tracking-wide
-        ${e.bg} ${e.text} ${e.border} ${a}`,children:[s.jsx("span",{className:`w-1.5 h-1.5 rounded-full ${e.dot}`}),o]})};export{x as O};
