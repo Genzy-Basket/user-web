@@ -6,6 +6,7 @@ import CartItem from "../components/CartItem";
 import CartSummary from "../components/CartSummary";
 import { ShoppingCart, AlertCircle, Trash2, Loader2 } from "lucide-react";
 import { ORDER_ROUTES } from "../../../constants/order.constants";
+import PageLayout from "../../../components/PageLayout";
 
 const isPastCutoff = (cutoffHour, cutoffMinute) => {
   const now = new Date();
@@ -58,57 +59,43 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">My Cart</h1>
-                <p className="text-sm text-slate-500 mt-0.5">
-                  {isEmpty
-                    ? "Your cart is empty"
-                    : `${itemCount} ${itemCount === 1 ? "item" : "items"} in your cart`}
-                </p>
-              </div>
-              {/* Subtle loading spinner when cart has items and is updating */}
-              {!isEmpty && loading && (
-                <Loader2 className="w-5 h-5 text-brand animate-spin" />
-              )}
-            </div>
-
-            {!isEmpty && !confirmClear && (
+    <PageLayout
+      title="My Cart"
+      subtitle={isEmpty ? "Your cart is empty" : `${itemCount} ${itemCount === 1 ? "item" : "items"} in your cart`}
+      headerRight={
+        <>
+          {!isEmpty && loading && (
+            <Loader2 className="w-5 h-5 text-brand animate-spin" />
+          )}
+          {!isEmpty && !confirmClear && (
+            <button
+              onClick={() => setConfirmClear(true)}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium text-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Clear</span>
+            </button>
+          )}
+          {confirmClear && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setConfirmClear(true)}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium text-sm"
+                onClick={handleClearConfirm}
+                className="px-3 py-1.5 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors"
               >
-                <Trash2 className="w-4 h-4" />
-                Clear Cart
+                Clear
               </button>
-            )}
-
-            {confirmClear && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 font-medium">Clear cart?</span>
-                <button
-                  onClick={handleClearConfirm}
-                  className="px-3 py-1.5 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors"
-                >
-                  Yes, clear
-                </button>
-                <button
-                  onClick={() => setConfirmClear(false)}
-                  className="px-3 py-1.5 bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
+              <button
+                onClick={() => setConfirmClear(false)}
+                className="px-3 py-1.5 bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </>
+      }
+    >
         {/* Global error */}
         {error && (
           <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3">
@@ -171,7 +158,7 @@ const CartPage = () => {
           </button>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 };
 

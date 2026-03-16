@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { Package, Loader2, AlertCircle } from "lucide-react";
+import PageLayout from "../../../components/PageLayout";
 import { useOrder } from "../hooks/useOrder";
 import OrderCard from "../components/OrderCard";
 import Skeleton from "../../../components/Skeleton";
@@ -74,7 +75,10 @@ const OrdersListPage = () => {
         </div>
 
         {/* Filter tabs — horizontal scroll with snap */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div
+          className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-hide snap-x snap-mandatory"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.key}
@@ -103,7 +107,10 @@ const OrdersListPage = () => {
         {loading && orders.length === 0 && (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-4">
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-slate-200 p-4"
+              >
                 <div className="flex items-center justify-between mb-3">
                   <Skeleton className="h-4 w-28" />
                   <Skeleton className="h-6 w-20 rounded-full" />
@@ -129,11 +136,16 @@ const OrdersListPage = () => {
               {activeTab ? "Nothing here" : "No orders yet"}
             </h2>
             <p className="text-slate-500 text-sm mt-1">
-              {activeTab === ORDER_STATUS.PENDING && "You have no pending orders right now."}
-              {activeTab === ORDER_STATUS.CONFIRMED && "No confirmed orders at the moment."}
-              {activeTab === ORDER_STATUS.OUT_FOR_DELIVERY && "No orders on the way right now."}
-              {activeTab === ORDER_STATUS.DELIVERED && "No delivered orders yet."}
-              {activeTab === ORDER_STATUS.CANCELLED && "No cancelled orders — that's great!"}
+              {activeTab === ORDER_STATUS.PENDING &&
+                "You have no pending orders right now."}
+              {activeTab === ORDER_STATUS.CONFIRMED &&
+                "No confirmed orders at the moment."}
+              {activeTab === ORDER_STATUS.OUT_FOR_DELIVERY &&
+                "No orders on the way right now."}
+              {activeTab === ORDER_STATUS.DELIVERED &&
+                "No delivered orders yet."}
+              {activeTab === ORDER_STATUS.CANCELLED &&
+                "No cancelled orders — that's great!"}
               {!activeTab && "You haven't placed any orders yet."}
             </p>
             {!activeTab && (

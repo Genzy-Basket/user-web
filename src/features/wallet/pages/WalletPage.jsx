@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Wallet, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import PageLayout from "../../../components/PageLayout";
 import { useWallet } from "../hooks/useWallet";
 import { errorBus } from "../../../api/errorBus";
 
@@ -14,7 +14,6 @@ const PHASE_LABELS = {
 };
 
 const WalletPage = () => {
-  const navigate = useNavigate();
   const { balance, transactions, pagination, loading, fetchWallet, addFunds, verifyFunds } = useWallet();
   const [amount, setAmount] = useState("");
   const [phase, setPhase] = useState("idle");
@@ -133,18 +132,7 @@ const WalletPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6 font-medium text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
-
-        <h1 className="text-2xl font-black text-slate-900 mb-6">Wallet</h1>
-
+    <PageLayout title="Wallet">
         {/* Balance Card */}
         <div className="bg-brand rounded-2xl p-6 mb-6 text-white shadow-lg shadow-brand/20">
           <div className="flex items-center gap-2 mb-3 opacity-80">
@@ -316,8 +304,7 @@ const WalletPage = () => {
             <p className="text-slate-400 text-sm">No transactions yet</p>
           </div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 };
 

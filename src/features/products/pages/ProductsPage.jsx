@@ -32,7 +32,8 @@ const ProductsPage = () => {
         const cartItems =
           cart?.items?.filter(
             (item) =>
-              (item.productId?._id ?? item.productId)?.toString() === product._id?.toString(),
+              (item.productId?._id ?? item.productId)?.toString() ===
+              product._id?.toString(),
           ) ?? [];
 
         if (cartItems.length > 0) {
@@ -56,7 +57,6 @@ const ProductsPage = () => {
   );
 
   const categories = getCategories();
-
   const handleCategoryChange = (category) => {
     updateFilters({
       category: category === filters.category ? null : category,
@@ -92,7 +92,10 @@ const ProductsPage = () => {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 p-3">
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-slate-100 p-3"
+              >
                 <Skeleton className="w-full aspect-square rounded-xl mb-3" />
                 <Skeleton className="h-4 w-3/4 mb-2" />
                 <Skeleton className="h-3 w-1/2 mb-3" />
@@ -125,9 +128,8 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative bg-brand overflow-hidden">
-        {/* Background pattern */}
+      {/* ── Desktop Hero Section (hidden on mobile) ──────────────────── */}
+      <div className="hidden md:block relative bg-brand overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div
             className="absolute inset-0"
@@ -138,38 +140,28 @@ const ProductsPage = () => {
           ></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
-          <div className="text-center mb-6 md:mb-8">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tight">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-8">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-3 tracking-tight">
               Fresh <span className="text-emerald-200">Products</span>
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-emerald-50/90 max-w-xl mx-auto font-medium">
+            <p className="text-base md:text-lg text-emerald-50/90 max-w-xl mx-auto font-medium">
               Premium quality vegetables and ingredients,
-              <br className="hidden sm:block" /> hand-picked and delivered to
-              your doorstep.
+              <br /> hand-picked and delivered to your doorstep.
             </p>
           </div>
 
-          {/* Search Bar */}
           <div className="max-w-xl mx-auto px-2">
             <div className="relative group">
               <div className="absolute -inset-1 bg-white/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
               <div className="relative">
-                <Search
-                  className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5
-                 transition-all duration-300
-                 text-brand group-focus-within:text-slate-900 group-focus-within:scale-110"
-                />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 text-brand group-focus-within:text-slate-900 group-focus-within:scale-110" />
                 <input
                   type="text"
                   placeholder="Search for fresh vegetables..."
                   value={filters.searchQuery}
                   onChange={handleSearchChange}
-                  className="w-full bg-white pl-14 pr-6 py-4 rounded-2xl text-slate-800 placeholder:text-slate-400
-                 outline-none border-none shadow-2xl transition-all duration-300
-                 hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)]
-                 focus:ring-4 focus:ring-emerald-400/40 focus:scale-[1.01]
-                 text-base font-medium"
+                  className="w-full bg-white pl-14 pr-6 py-4 rounded-2xl text-slate-800 placeholder:text-slate-400 outline-none border-none shadow-2xl transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)] focus:ring-4 focus:ring-emerald-400/40 focus:scale-[1.01] text-base font-medium"
                 />
               </div>
             </div>
@@ -179,11 +171,68 @@ const ProductsPage = () => {
         <div className="absolute bottom-0 left-0 right-0 h-4 bg-white rounded-t-[40px]"></div>
       </div>
 
+      {/* ── Mobile Search Bar + Categories (sticky, matches user-app) ── */}
+      <div className="md:hidden sticky top-0 z-30">
+        <div
+          className="bg-brand px-4 pb-2.5"
+          style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.625rem)" }}
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-brand" />
+            <input
+              type="text"
+              placeholder="Search products…"
+              value={filters.searchQuery}
+              onChange={handleSearchChange}
+              className="w-full bg-white pl-10 pr-4 h-10 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 outline-none border-none font-medium shadow-sm"
+            />
+            {filters.searchQuery && (
+              <button
+                onClick={() => updateFilters({ searchQuery: "" })}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+        <div
+          className="flex gap-2 overflow-x-auto px-4 py-2.5 bg-white border-b border-slate-100 scrollbar-hide"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <button
+            onClick={() => updateFilters({ category: null })}
+            className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+              !filters.category
+                ? "bg-brand text-white border-brand shadow-sm"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+            }`}
+          >
+            All
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryChange(category)}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold capitalize border transition-all ${
+                filters.category === category
+                  ? "bg-brand text-white border-brand shadow-sm"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
-
-        {/* Category chips — always visible, horizontally scrollable */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
+        {/* Category chips — desktop only */}
+        <div
+          className="hidden md:flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           <button
             onClick={() => updateFilters({ category: null })}
             className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
@@ -263,7 +312,7 @@ const ProductsPage = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-20 md:pb-0">
             {cards}
           </div>
         )}

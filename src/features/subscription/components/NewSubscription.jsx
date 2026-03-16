@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ShoppingBasket,
   CalendarDays,
+  CreditCard,
   Loader2,
 } from "lucide-react";
 import { useWallet } from "../../wallet/hooks/useWallet";
@@ -27,6 +28,12 @@ const loadCashfreeSdk = () =>
     document.head.appendChild(script);
   });
 
+const STEPS = [
+  { key: "products", label: "Items", icon: ShoppingBasket },
+  { key: "schedule", label: "Schedule", icon: CalendarDays },
+  { key: "summary", label: "Summary", icon: CreditCard },
+];
+
 const NewSubscription = ({ onBack }) => {
   const { balance, fetchWallet } = useWallet();
   const {
@@ -37,6 +44,7 @@ const NewSubscription = ({ onBack }) => {
 
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  // Key: `${productId}:${configId}`, Value: { productId, configId, quantity }
   const [selections, setSelections] = useState({});
   const [step, setStep] = useState("products");
   const [selectedDates, setSelectedDates] = useState(new Set());
@@ -46,7 +54,8 @@ const NewSubscription = ({ onBack }) => {
 
   useEffect(() => {
     fetchWallet();
-    subscriptionAPI.getSubscriptionProducts()
+    subscriptionAPI
+      .getSubscriptionProducts()
       .then((res) => setProducts(res.data || []))
       .catch(() => setProducts([]))
       .finally(() => setProductsLoading(false));
@@ -54,16 +63,16 @@ const NewSubscription = ({ onBack }) => {
 
   const selectedItems = useMemo(() => {
     const items = [];
-    for (const [productId, sel] of Object.entries(selections)) {
-      if (!sel.configId) continue;
-      const product = products.find((p) => p._id === productId);
+    for (const [, sel] of Object.entries(selections)) {
+      if (!sel.configId || !sel.productId) continue;
+      const product = products.find((p) => p._id === sel.productId);
       if (!product) continue;
       const config = product.priceConfigs.find(
         (c) => (c._id || c.id) === sel.configId,
       );
       if (!config) continue;
       items.push({
-        productId,
+        productId: sel.productId,
         productName: product.name,
         config,
         quantity: sel.quantity,
@@ -83,23 +92,40 @@ const NewSubscription = ({ onBack }) => {
 
   const walletMaxDays = dailyCost > 0 ? Math.floor(balance / dailyCost) : 0;
 
-  const handleSelectConfig = useCallback((productId, configId) => {
+  const handleConfigToggle = useCallback((productId, configId) => {
+    setSelections((prev) => {
+      const key = `${productId}:${configId}`;
+      const next = { ...prev };
+      if (next[key]) {
+        delete next[key];
+      } else {
+        next[key] = { productId, configId, quantity: 1 };
+      }
+      return next;
+    });
+  }, []);
+
+  const handleQuantityChange = useCallback((productId, configId, qty) => {
+    if (qty < 1) return;
+    const key = `${productId}:${configId}`;
     setSelections((prev) => ({
       ...prev,
-      [productId]: {
-        configId,
-        quantity: configId ? prev[productId]?.quantity || 1 : 0,
-      },
+      [key]: { ...prev[key], productId, configId, quantity: qty },
     }));
   }, []);
 
-  const handleQuantityChange = useCallback((productId, qty) => {
-    if (qty < 1) return;
-    setSelections((prev) => ({
-      ...prev,
-      [productId]: { ...prev[productId], quantity: qty },
-    }));
-  }, []);
+  const getProductSelectedConfigs = useCallback(
+    (productId) => {
+      const configs = {};
+      for (const [key, sel] of Object.entries(selections)) {
+        if (sel.productId === productId) {
+          configs[sel.configId] = sel.quantity;
+        }
+      }
+      return configs;
+    },
+    [selections],
+  );
 
   const handleToggleDate = useCallback((dateKey) => {
     setSelectedDates((prev) => {
@@ -259,6 +285,9 @@ const NewSubscription = ({ onBack }) => {
   };
 
   const isLoading = subLoading;
+  const stepIndex = STEPS.findIndex((s) => s.key === step);
+  const itemCount = selectedItems.length;
+  const total = dailyCost * selectedDates.size;
 
   if (productsLoading && products.length === 0) {
     return (
@@ -270,30 +299,12 @@ const NewSubscription = ({ onBack }) => {
 
   return (
     <>
-      {/* Back + Step indicator */}
-      <button
-        type="button"
-        onClick={handleBack}
-        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-5 font-medium text-sm"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        {step === "products"
-          ? "Back"
-          : step === "schedule"
-            ? "Back to Items"
-            : "Back to Schedule"}
-      </button>
-
-      {/* Step progress */}
-      <div className="flex items-center gap-3 mb-6">
-        {[
-          { key: "products", label: "Items", icon: ShoppingBasket },
-          { key: "schedule", label: "Schedule", icon: CalendarDays },
-        ].map(({ key, label, icon: Icon }, idx) => {
-          const isActive = step === key || (step === "summary" && idx <= 1);
-          const isDone =
-            (key === "products" && step !== "products") ||
-            (key === "schedule" && step === "summary");
+      {/* Step indicator — 3 steps */}
+      <div className="flex items-center gap-2 mb-6">
+        {STEPS.map(({ key, label, icon: Icon }, idx) => {
+          const isActive = idx === stepIndex;
+          const isDone = idx < stepIndex;
+          const isFuture = idx > stepIndex;
           return (
             <div key={key} className="flex items-center gap-2 flex-1">
               <div
@@ -306,11 +317,11 @@ const NewSubscription = ({ onBack }) => {
                 <Icon className="w-4 h-4" />
               </div>
               <span
-                className={`text-xs font-semibold ${isActive ? "text-slate-800" : "text-slate-400"}`}
+                className={`text-xs font-semibold ${isFuture ? "text-slate-400" : "text-slate-800"}`}
               >
                 {label}
               </span>
-              {idx < 1 && (
+              {idx < STEPS.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 rounded-full ${isDone ? "bg-brand" : "bg-slate-200"}`}
                 />
@@ -330,32 +341,27 @@ const NewSubscription = ({ onBack }) => {
               </p>
             </div>
           )}
-          {products.map((product) => {
-            const sel = selections[product._id];
-            return (
-              <ProductSelector
-                key={product._id}
-                product={product}
-                selectedConfigId={sel?.configId ?? null}
-                quantity={sel?.quantity ?? 1}
-                onSelectConfig={handleSelectConfig}
-                onQuantityChange={handleQuantityChange}
-              />
-            );
-          })}
+          {products.map((product) => (
+            <ProductSelector
+              key={product._id}
+              product={product}
+              selectedConfigs={getProductSelectedConfigs(product._id)}
+              onConfigToggle={handleConfigToggle}
+              onQuantityChange={handleQuantityChange}
+            />
+          ))}
         </div>
       )}
 
-      {/* Step 2: Calendar + Summary */}
-      {(step === "schedule" || step === "summary") && (
+      {/* Step 2: Schedule */}
+      {step === "schedule" && (
         <div className="space-y-4">
           {dailyCost > 0 && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-800 flex items-center justify-between">
               <span>
                 <span className="font-bold">₹{dailyCost}/day</span>
                 <span className="text-emerald-600 ml-1">
-                  · {selectedDates.size} days = ₹
-                  {dailyCost * selectedDates.size}
+                  · {selectedDates.size} days = ₹{total}
                 </span>
               </span>
               {walletMaxDays > 0 && (
@@ -377,26 +383,32 @@ const NewSubscription = ({ onBack }) => {
             onNextMonth={handleNextMonth}
             maxDays={0}
           />
-
-          {step === "summary" && (
-            <SubscriptionSummary
-              items={selectedItems}
-              selectedDates={selectedDates}
-              walletBalance={balance}
-              onSubscribe={handleSubscribe}
-              loading={isLoading}
-            />
-          )}
         </div>
       )}
 
-      {/* Bottom bar */}
-      {selectedItems.length > 0 && step !== "summary" && (
-        <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-white border-t-2 border-slate-200 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] z-30">
+      {/* Step 3: Summary */}
+      {step === "summary" && (
+        <div className="space-y-4">
+          <SubscriptionSummary
+            items={selectedItems}
+            selectedDates={selectedDates}
+            walletBalance={balance}
+            onSubscribe={handleSubscribe}
+            loading={isLoading}
+          />
+        </div>
+      )}
+
+      {/* Bottom bar — products and schedule steps only, hidden on summary */}
+      {itemCount > 0 && step !== "summary" && (
+        <div
+          className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-slate-200 px-4 py-4 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] z-30"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
+        >
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <div>
               <p className="text-sm font-bold text-slate-800">
-                {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""}
+                {itemCount} item{itemCount > 1 ? "s" : ""} selected
                 <span className="text-slate-400 font-medium ml-1">
                   · ₹{dailyCost}/day
                 </span>
@@ -404,7 +416,7 @@ const NewSubscription = ({ onBack }) => {
               {step === "schedule" && selectedDates.size > 0 && (
                 <p className="text-xs text-slate-500">
                   {selectedDates.size} day{selectedDates.size !== 1 ? "s" : ""}{" "}
-                  · ₹{dailyCost * selectedDates.size} total
+                  · ₹{total} total
                 </p>
               )}
             </div>

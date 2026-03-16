@@ -36,6 +36,9 @@ const TermsAndConditions = lazy(
 const RefundsAndCancellations = lazy(
   () => import("./pages/policy/RefundsAndCancellations"),
 );
+const PrivacyPolicy = lazy(
+  () => import("./pages/policy/PrivacyPolicy"),
+);
 
 // ── Lazily loaded (only when user navigates to them) ─────────────────────────
 const CheckoutPage = lazy(() => import("./features/order/pages/CheckoutPage"));
@@ -52,6 +55,8 @@ const OrderDetailPage = lazy(
   () => import("./features/order/pages/OrderDetailPage"),
 );
 const WalletPage = lazy(() => import("./features/wallet/pages/WalletPage"));
+const NewSubscriptionPage = lazy(() => import("./features/subscription/pages/NewSubscriptionPage"));
+const FeedbackPage = lazy(() => import("./pages/FeedbackPage"));
 const SubscriptionPage = lazy(() => import("./features/subscription/pages/SubscriptionPage"));
 const SubscriptionDetailPage = lazy(() => import("./features/subscription/pages/SubscriptionDetailPage"));
 
@@ -130,6 +135,14 @@ function App() {
                         }
                       />
                       <Route
+                        path="/privacy"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <PrivacyPolicy />
+                          </Suspense>
+                        }
+                      />
+                      <Route
                         path="/download"
                         element={
                           <Suspense fallback={<PageLoader />}>
@@ -162,36 +175,36 @@ function App() {
                       <Route
                         path="/products/:id"
                         element={
-                          <LazyShell>
+                          <LazyFull>
                             <ProductDetailPage />
-                          </LazyShell>
+                          </LazyFull>
                         }
                       />
 
                       <Route
                         path="/cart"
                         element={
-                          <LazyShell>
+                          <LazyFull>
                             <CartPage />
-                          </LazyShell>
+                          </LazyFull>
                         }
                       />
 
                       <Route
                         path="/profile"
                         element={
-                          <LazyShell>
+                          <LazyFull>
                             <ProfilePage />
-                          </LazyShell>
+                          </LazyFull>
                         }
                       />
 
                       <Route
                         path="/wallet"
                         element={
-                          <LazyShell>
+                          <LazyFull>
                             <WalletPage />
-                          </LazyShell>
+                          </LazyFull>
                         }
                       />
 
@@ -205,15 +218,32 @@ function App() {
                       />
 
                       <Route
-                        path="/subscriptions/:subscriptionId"
+                        path="/subscriptions/new"
                         element={
-                          <LazyShell>
-                            <SubscriptionDetailPage />
-                          </LazyShell>
+                          <LazyFull>
+                            <NewSubscriptionPage />
+                          </LazyFull>
                         }
                       />
 
-                      {/* Orders list lives inside AppShell (has the nav) */}
+                      <Route
+                        path="/subscriptions/:subscriptionId"
+                        element={
+                          <LazyFull>
+                            <SubscriptionDetailPage />
+                          </LazyFull>
+                        }
+                      />
+
+                      <Route
+                        path="/feedback"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <FeedbackPage />
+                          </Suspense>
+                        }
+                      />
+
                       <Route
                         path="/orders"
                         element={
@@ -223,13 +253,12 @@ function App() {
                         }
                       />
 
-                      {/* Order detail also inside AppShell */}
                       <Route
                         path="/orders/:orderId"
                         element={
-                          <LazyShell>
+                          <LazyFull>
                             <OrderDetailPage />
-                          </LazyShell>
+                          </LazyFull>
                         }
                       />
 

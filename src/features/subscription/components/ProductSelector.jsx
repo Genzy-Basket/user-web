@@ -1,7 +1,9 @@
 import { Package, Plus, Minus, Check } from "lucide-react";
 
-const ProductSelector = ({ product, selectedConfigId, quantity, onSelectConfig, onQuantityChange }) => {
+const ProductSelector = ({ product, selectedConfigs = {}, onConfigToggle, onQuantityChange }) => {
   if (!product) return null;
+
+  const selectedConfigIds = Object.keys(selectedConfigs);
 
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-200 p-5 hover:shadow-md transition-all">
@@ -31,13 +33,13 @@ const ProductSelector = ({ product, selectedConfigId, quantity, onSelectConfig, 
       <div className="flex flex-wrap gap-2">
         {product.priceConfigs.map((config) => {
           const configId = config._id || config.id;
-          const isSelected = selectedConfigId === configId;
+          const isSelected = configId in selectedConfigs;
 
           return (
             <button
               key={configId}
               type="button"
-              onClick={() => onSelectConfig(product._id, isSelected ? null : configId)}
+              onClick={() => onConfigToggle(product._id, configId)}
               className={`relative px-4 py-3 rounded-xl border-2 text-left transition-all duration-150 min-w-[100px]
                 ${
                   isSelected
@@ -65,29 +67,45 @@ const ProductSelector = ({ product, selectedConfigId, quantity, onSelectConfig, 
         })}
       </div>
 
-      {/* Quantity stepper — only visible when a config is selected */}
-      {selectedConfigId && (
-        <div className="flex items-center justify-between pt-3 mt-4 border-t border-slate-100">
-          <span className="text-sm text-slate-600 font-medium">Daily quantity</span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onQuantityChange(product._id, quantity - 1)}
-              disabled={quantity <= 1}
-              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center disabled:opacity-30 transition-colors"
-            >
-              <Minus className="w-3.5 h-3.5 text-slate-700" />
-            </button>
-            <span className="w-10 text-center font-bold text-slate-800 text-lg">{quantity}</span>
-            <button
-              type="button"
-              onClick={() => onQuantityChange(product._id, quantity + 1)}
-              disabled={quantity >= 10}
-              className="w-8 h-8 rounded-lg bg-brand text-white hover:bg-emerald-700 flex items-center justify-center disabled:opacity-30 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* Quantity steppers — one row per selected config */}
+      {selectedConfigIds.length > 0 && (
+        <div className="pt-3 mt-4 border-t border-slate-100 space-y-3">
+          {product.priceConfigs
+            .filter((config) => {
+              const configId = config._id || config.id;
+              return configId in selectedConfigs;
+            })
+            .map((config) => {
+              const configId = config._id || config.id;
+              const qty = selectedConfigs[configId] || 1;
+
+              return (
+                <div key={configId} className="flex items-center justify-between">
+                  <span className="text-sm text-slate-600 font-medium">
+                    {config.displayLabel || `${config.value} ${config.unit}`}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onQuantityChange(product._id, configId, qty - 1)}
+                      disabled={qty <= 1}
+                      className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center disabled:opacity-30 transition-colors"
+                    >
+                      <Minus className="w-3.5 h-3.5 text-slate-700" />
+                    </button>
+                    <span className="w-10 text-center font-bold text-slate-800 text-lg">{qty}</span>
+                    <button
+                      type="button"
+                      onClick={() => onQuantityChange(product._id, configId, qty + 1)}
+                      disabled={qty >= 10}
+                      className="w-8 h-8 rounded-lg bg-brand text-white hover:bg-emerald-700 flex items-center justify-center disabled:opacity-30 transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
         </div>
       )}
     </div>

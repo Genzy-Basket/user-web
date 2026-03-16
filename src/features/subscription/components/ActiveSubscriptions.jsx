@@ -15,7 +15,7 @@ const formatShortDate = (dateStr) => {
   return `${d.getDate()} ${months[d.getMonth()]}`;
 };
 
-const ActiveSubscriptions = ({ onNewSubscription }) => {
+const ActiveSubscriptions = ({ onNewSubscription } = {}) => {
   const { subscriptions, loading } = useSubscription();
   const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ const ActiveSubscriptions = ({ onNewSubscription }) => {
         </p>
         <button
           type="button"
-          onClick={onNewSubscription}
+          onClick={onNewSubscription || (() => navigate("/subscriptions/new"))}
           className="px-6 py-2.5 bg-brand text-white rounded-xl font-semibold text-sm hover:bg-emerald-700 transition-all"
         >
           Create Subscription

@@ -20,6 +20,7 @@ import {
   CheckCircle,
   LogOut,
 } from "lucide-react";
+import PageLayout from "../../../components/PageLayout";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -98,8 +99,20 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+    <PageLayout
+      title="Profile"
+      green
+      maxWidth="max-w-6xl"
+      headerRight={
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1 px-2.5 py-1.5 bg-white/[0.12] rounded-[10px] text-white"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-[13px] font-semibold">Logout</span>
+        </button>
+      }
+    >
         {/* Main Profile Header */}
         <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-8 mb-8">
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
@@ -164,8 +177,12 @@ const ProfilePage = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium opacity-80 mb-1">Wallet Balance</p>
-              <p className="text-3xl font-black tracking-tight">₹{balance.toFixed(2)}</p>
+              <p className="text-sm font-medium opacity-80 mb-1">
+                Wallet Balance
+              </p>
+              <p className="text-3xl font-black tracking-tight">
+                ₹{balance.toFixed(2)}
+              </p>
             </div>
             <div className="px-5 py-2.5 bg-white/20 rounded-xl font-bold text-sm">
               Add Money
@@ -192,6 +209,29 @@ const ProfilePage = () => {
             </div>
             <div className="px-4 py-2 bg-brand text-white rounded-xl font-bold text-sm">
               Subscribe
+            </div>
+          </div>
+        </Link>
+
+        {/* Feedback Card */}
+        <Link
+          to="/feedback"
+          className="block bg-white rounded-2xl border-2 border-slate-200 p-6 mb-6 hover:shadow-lg transition-shadow"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl">
+                💬
+              </div>
+              <div>
+                <p className="font-bold text-slate-800">Send Feedback</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Help us improve your experience
+                </p>
+              </div>
+            </div>
+            <div className="px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-sm">
+              Share
             </div>
           </div>
         </Link>
@@ -304,15 +344,17 @@ const ProfilePage = () => {
                 <Users className="w-7 h-7 text-emerald-600" />
                 Family Members
               </h2>
-              {!isAddingMember && !editingMember && (profile?.members?.length ?? 0) < 20 && (
-                <button
-                  onClick={() => setIsAddingMember(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg shadow-emerald-200"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add
-                </button>
-              )}
+              {!isAddingMember &&
+                !editingMember &&
+                (profile?.members?.length ?? 0) < 20 && (
+                  <button
+                    onClick={() => setIsAddingMember(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg shadow-emerald-200"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add
+                  </button>
+                )}
             </div>
 
             {(isAddingMember || editingMember) && (
@@ -368,8 +410,7 @@ const ProfilePage = () => {
             )}
           </div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 };
 
