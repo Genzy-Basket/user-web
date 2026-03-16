@@ -136,7 +136,6 @@ const CartPage = () => {
             </div>
           </div>
         )}
-      </div>
 
       {/* Mobile sticky checkout bar — respects ordersClosed */}
       {!isEmpty && (
