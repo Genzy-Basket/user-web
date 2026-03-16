@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Package, Loader2, AlertCircle } from "lucide-react";
-import PageLayout from "../../../components/PageLayout";
 import { useOrder } from "../hooks/useOrder";
 import OrderCard from "../components/OrderCard";
 import Skeleton from "../../../components/Skeleton";
@@ -63,15 +62,9 @@ const OrdersListPage = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => navigate("/products")}
-            className="p-2 rounded-xl hover:bg-white/80 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <h1 className="text-2xl font-black text-slate-900">My Orders</h1>
+        {/* Header — mobile only (desktop uses AppShell nav) */}
+        <div className="md:hidden sticky top-0 z-40 bg-brand -mx-4 -mt-8 px-4 py-3.5 mb-4">
+          <h1 className="text-lg font-black text-white">My Orders</h1>
         </div>
 
         {/* Filter tabs — horizontal scroll with snap */}
