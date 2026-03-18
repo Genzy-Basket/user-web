@@ -107,7 +107,7 @@ const MemberForm = ({ initialData, onSubmit, onCancel, loading }) => {
           <Activity className="inline w-4 h-4 mr-1.5" />
           Belly Size
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {BELLY_SIZE_OPTIONS.map((option) => (
             <button
               key={option.value}

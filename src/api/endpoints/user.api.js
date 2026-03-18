@@ -10,6 +10,11 @@ const userAPI = {
     return response.data;
   },
 
+  updateProfile: async (data) => {
+    const response = await apiClient.put("/user/", data);
+    return response.data;
+  },
+
   addAddress: async (addressData) => {
     const response = await apiClient.post("/user/address", addressData);
     return response.data;

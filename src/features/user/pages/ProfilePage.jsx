@@ -34,6 +34,7 @@ const ProfilePage = () => {
     profile,
     loading,
     error,
+    updateProfile,
     saveAddress,
     addMember,
     updateMember,
@@ -45,6 +46,23 @@ const ProfilePage = () => {
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ fullName: "", email: "", phoneNumber: "" });
+
+  // Handle profile edit
+  const startEditingProfile = () => {
+    setProfileForm({
+      fullName: profile?.fullName || "",
+      email: profile?.email || "",
+      phoneNumber: profile?.phoneNumber || "",
+    });
+    setIsEditingProfile(true);
+  };
+
+  const handleProfileSave = async () => {
+    const result = await updateProfile(profileForm);
+    if (result.success) setIsEditingProfile(false);
+  };
 
   // Handle Logout
   const handleLogout = () => {
@@ -106,7 +124,7 @@ const ProfilePage = () => {
       headerRight={
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1 px-2.5 py-1.5 bg-white/[0.12] rounded-[10px] text-white"
+          className="flex items-center gap-1 px-2.5 py-1.5 bg-white/12 rounded-[10px] text-white"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-[13px] font-semibold">Logout</span>
@@ -114,60 +132,117 @@ const ProfilePage = () => {
       }
     >
         {/* Main Profile Header */}
-        <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-8 mb-8">
-          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
-            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-              <div className="w-24 h-24 rounded-2xl bg-brand flex items-center justify-center text-white font-bold text-4xl shadow-lg shadow-brand/20">
-                {profile?.fullName?.charAt(0).toUpperCase() || "U"}
+        <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-6 md:p-8 mb-8">
+          {isEditingProfile ? (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold text-slate-800 mb-2">Edit Profile</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={profileForm.fullName}
+                    onChange={(e) => setProfileForm((p) => ({ ...p, fullName: e.target.value }))}
+                    className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-emerald-400 focus:ring-emerald-200 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm((p) => ({ ...p, email: e.target.value }))}
+                    className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-emerald-400 focus:ring-emerald-200 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={profileForm.phoneNumber}
+                    onChange={(e) => setProfileForm((p) => ({ ...p, phoneNumber: e.target.value }))}
+                    className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:border-emerald-400 focus:ring-emerald-200 transition-all"
+                  />
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-slate-800 mb-2">
-                  {profile?.fullName || "User"}
-                </h1>
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-600">
-                  <span className="flex items-center gap-1.5">
-                    <Mail className="w-4 h-4" />
-                    {profile?.email}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4" />
-                    {profile?.phoneNumber}
-                  </span>
-                  {profile?.accountStatus === "approved" && (
-                    <span className="flex items-center gap-1.5 text-emerald-600 font-medium">
-                      <CheckCircle className="w-4 h-4" />
-                      Approved
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setIsEditingProfile(false)}
+                  className="px-5 py-2.5 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleProfileSave}
+                  disabled={loading}
+                  className="px-5 py-2.5 bg-brand text-white rounded-xl hover:bg-brand-dark transition-colors font-medium disabled:opacity-50"
+                >
+                  {loading ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+              <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-brand flex items-center justify-center text-white font-bold text-3xl md:text-4xl shadow-lg shadow-brand/20">
+                  {profile?.fullName?.charAt(0).toUpperCase() || "U"}
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
+                    {profile?.fullName || "User"}
+                  </h1>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-4 text-sm text-slate-600">
+                    {profile?.email && (
+                      <span className="flex items-center gap-1.5">
+                        <Mail className="w-4 h-4" />
+                        {profile.email}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1.5">
+                      <Phone className="w-4 h-4" />
+                      {profile?.phoneNumber}
                     </span>
+                    {profile?.accountStatus === "approved" && (
+                      <span className="flex items-center gap-1.5 text-emerald-600 font-medium">
+                        <CheckCircle className="w-4 h-4" />
+                        Approved
+                      </span>
+                    )}
+                  </div>
+                  {profile?.lastLoginAt && (
+                    <p className="text-xs text-slate-500 mt-2 flex justify-center md:justify-start items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      Last login: {new Date(profile.lastLoginAt).toLocaleString()}
+                    </p>
                   )}
                 </div>
-                {profile?.lastLoginAt && (
-                  <p className="text-xs text-slate-500 mt-2 flex justify-center md:justify-start items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    Last login: {new Date(profile.lastLoginAt).toLocaleString()}
-                  </p>
-                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <button
+                  onClick={startEditingProfile}
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit Profile
+                </button>
+                <Link
+                  to="/download"
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-50 text-brand rounded-xl hover:bg-brand hover:text-white transition-all duration-200 font-bold border-2 border-emerald-100 shadow-sm"
+                >
+                  <span className="text-lg">📱</span>
+                  Download App
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="group flex items-center justify-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-200 font-bold border-2 border-red-100 shadow-sm"
+                >
+                  <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                  Logout
+                </button>
               </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Download App */}
-              <Link
-                to="/download"
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-50 text-brand rounded-xl hover:bg-brand hover:text-white transition-all duration-200 font-bold border-2 border-emerald-100 shadow-sm"
-              >
-                <span className="text-lg">📱</span>
-                Download App
-              </Link>
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="group flex items-center justify-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-200 font-bold border-2 border-red-100 shadow-sm"
-              >
-                <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                Logout
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Wallet Card */}

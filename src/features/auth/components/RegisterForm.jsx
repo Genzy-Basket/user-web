@@ -124,8 +124,8 @@ const RegisterForm = ({ onSubmit, loading }) => {
     formData.address.geoLocation.coordinates[1] !== 0;
 
   const inputClass = (fieldName) =>
-    `w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-      errors[fieldName] ? "border-red-500" : "border-slate-200"
+    `w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+      errors[fieldName] ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-200"
     }`;
 
   return (

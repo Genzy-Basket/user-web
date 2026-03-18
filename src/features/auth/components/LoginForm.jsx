@@ -54,8 +54,8 @@ const LoginForm = ({ onSubmit, loading }) => {
           name="userId"
           value={formData.userId}
           onChange={handleChange}
-          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-            errors.userId ? "border-red-500" : "border-slate-200"
+          className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+            errors.userId ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-200"
           }`}
           placeholder="Enter phone number or email"
         />
@@ -79,8 +79,8 @@ const LoginForm = ({ onSubmit, loading }) => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-              errors.password ? "border-red-500" : "border-slate-200"
+            className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+              errors.password ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-200"
             }`}
             placeholder="Enter your password"
           />

@@ -38,6 +38,10 @@ export const UserProvider = ({ children }) => {
     userAPI.removeMember,
     { successMessage: "Member removed." },
   );
+  const { execute: runUpdateProfile, loading: updateProfileLoading } = useApiCall(
+    userAPI.updateProfile,
+    { successMessage: "Profile updated!" },
+  );
 
   const loading =
     fetchLoading ||
@@ -45,7 +49,8 @@ export const UserProvider = ({ children }) => {
     updateAddressLoading ||
     addMemberLoading ||
     updateMemberLoading ||
-    removeMemberLoading;
+    removeMemberLoading ||
+    updateProfileLoading;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   /**
@@ -105,6 +110,15 @@ export const UserProvider = ({ children }) => {
     [runRemoveMember],
   );
 
+  const updateProfile = useCallback(
+    async (data) => {
+      const response = wrap(await runUpdateProfile(data));
+      if (response.success) setProfile(response.data);
+      return response;
+    },
+    [runUpdateProfile],
+  );
+
   const clearError = useCallback(() => setError(null), []);
 
   const hasAddress = !!profile?.address;
@@ -117,6 +131,7 @@ export const UserProvider = ({ children }) => {
       error,
       clearError,
       fetchProfile,
+      updateProfile,
       saveAddress,
       addMember,
       updateMember,
@@ -130,6 +145,7 @@ export const UserProvider = ({ children }) => {
       error,
       clearError,
       fetchProfile,
+      updateProfile,
       saveAddress,
       addMember,
       updateMember,

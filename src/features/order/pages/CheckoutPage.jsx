@@ -135,7 +135,7 @@ const CheckoutPage = () => {
 
         <h1 className="text-2xl font-black text-slate-900 mb-6">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
           {/* Left column — address + payment */}
           <div className="lg:col-span-3 space-y-5">
             {/* Delivery Address */}
