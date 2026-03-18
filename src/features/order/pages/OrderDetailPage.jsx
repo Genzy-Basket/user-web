@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,6 +9,8 @@ import {
   XCircle,
   RefreshCw,
   MessageSquare,
+  ShieldCheck,
+  Banknote,
 } from "lucide-react";
 import { useOrder } from "../hooks/useOrder";
 import { useCart } from "../../cart/hooks/useCart";
@@ -27,6 +29,16 @@ import {
 
 const REORDERABLE_STATUSES = [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REFUNDED];
 
+const loadCashfreeSdk = () =>
+  new Promise((resolve, reject) => {
+    if (window.Cashfree) return resolve(window.Cashfree);
+    const script = document.createElement("script");
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.onload = () => resolve(window.Cashfree);
+    script.onerror = () => reject(new Error("Failed to load payment SDK"));
+    document.head.appendChild(script);
+  });
+
 const OrderDetailPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
@@ -37,6 +49,38 @@ const OrderDetailPage = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [reordering, setReordering] = useState(false);
+  const [payingOnline, setPayingOnline] = useState(false);
+
+  const handlePayOnline = useCallback(async () => {
+    if (!order?.orderId) return;
+    setPayingOnline(true);
+    try {
+      const res = await orderAPI.getCodPaymentSession(order.orderId);
+      if (!res.success) throw new Error(res.message);
+
+      if (res.alreadyPaid || res.data?.alreadyPaid) {
+        const refreshed = await orderAPI.getOrder(order.orderId);
+        if (refreshed.success) setOrder(refreshed.data);
+        return;
+      }
+
+      const { paymentSessionId, cashfreeOrderId } = res.data;
+      const Cashfree = await loadCashfreeSdk();
+      const cashfree = Cashfree({
+        mode: import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox",
+      });
+
+      cashfree.checkout({
+        paymentSessionId,
+        redirectTarget: "_self",
+        returnUrl: `${window.location.origin}/orders/${order.orderId}`,
+      });
+    } catch {
+      // error handled by context
+    } finally {
+      setPayingOnline(false);
+    }
+  }, [order]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -274,6 +318,38 @@ const OrderDetailPage = () => {
           )}
         </div>
       </section>
+
+      {/* Pay Online for COD */}
+      {order.payment?.method === "cod" &&
+        order.payment?.status !== "success" &&
+        !isCancelled && (
+          <section className="bg-white rounded-2xl border border-slate-200 p-5">
+            <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-1">
+              <Banknote className="w-4 h-4 text-brand" />
+              Pay Online Instead
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Skip the cash — pay securely online right now.
+            </p>
+            <button
+              onClick={handlePayOnline}
+              disabled={payingOnline}
+              className="w-full py-3 bg-brand text-white rounded-xl font-semibold text-sm
+                hover:bg-brand-dark transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {payingOnline ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CreditCard className="w-4 h-4" />
+              )}
+              Pay ₹{order.totalAmount?.toFixed(0)} Online
+            </button>
+            <div className="flex items-center justify-center gap-1.5 text-slate-400 text-xs mt-3">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Secured by Cashfree Payments</span>
+            </div>
+          </section>
+        )}
 
       {/* Expected delivery */}
       {order.expectedDeliveryDate && !isCancelled && (

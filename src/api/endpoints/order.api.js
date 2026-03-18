@@ -45,6 +45,12 @@ const orderAPI = {
     return response.data;
   },
 
+  /** Get/create Cashfree payment session for a COD order */
+  getCodPaymentSession: async (orderId) => {
+    const response = await apiClient.post(`/orders/${orderId}/cod-pay`, {});
+    return response.data;
+  },
+
   /** Cancel an order in pending or confirmed state */
   cancelOrder: async (orderId, reason) => {
     const response = await apiClient.post(`/orders/${orderId}/cancel`, {

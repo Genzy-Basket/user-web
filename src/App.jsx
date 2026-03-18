@@ -29,6 +29,7 @@ const ProfilePage = lazy(() => import("./features/user/pages/ProfilePage"));
 
 // ── Public pages ─────────────────────────────────────────────────────────────
 const DownloadApp = lazy(() => import("./pages/DownloadApp"));
+const PayPage = lazy(() => import("./pages/PayPage"));
 const ContactUs = lazy(() => import("./pages/policy/ContactUs"));
 const TermsAndConditions = lazy(
   () => import("./pages/policy/TermsAndConditions"),
@@ -139,6 +140,14 @@ function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <PrivacyPolicy />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/pay/:cashfreeOrderId"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <PayPage />
                           </Suspense>
                         }
                       />
