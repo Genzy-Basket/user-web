@@ -268,16 +268,22 @@ const OrderDetailPage = () => {
       {/* Delivery address */}
       {order.deliveryAddress && (
         <section className="bg-white rounded-2xl border border-slate-200 p-5">
-          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3">
-            <MapPin className="w-4 h-4 text-brand" />
-            Delivery Address
-          </h3>
-          <p className="text-sm text-slate-700">
-            {order.deliveryAddress.houseOrFlat}, {order.deliveryAddress.street}
-          </p>
-          <p className="text-sm text-slate-500 mt-0.5">
-            {order.deliveryAddress.area}, {order.deliveryAddress.pincode}
-          </p>
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4 text-brand" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-800 text-sm">
+                {order.deliveryAddress.houseOrFlat}
+              </p>
+              <p className="text-sm text-slate-500 mt-0.5">
+                {order.deliveryAddress.street}, {order.deliveryAddress.area}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {order.deliveryAddress.pincode}
+              </p>
+            </div>
+          </div>
         </section>
       )}
 
@@ -510,13 +516,13 @@ const Page = ({ children }) => (
 );
 
 const InfoRow = ({ label, value, mono }) => (
-  <div className="flex items-center justify-between">
-    <span className="text-xs text-slate-500">{label}</span>
-    <span
-      className={`text-xs font-semibold text-slate-700 ${mono ? "font-mono" : ""}`}
-    >
-      {value}
-    </span>
+  <div className="flex items-start gap-3 mb-3">
+    <div className="flex-1">
+      <span className="text-xs text-slate-400 block">{label}</span>
+      <span className={`text-sm font-semibold text-slate-700 ${mono ? "font-mono" : ""}`}>
+        {value}
+      </span>
+    </div>
   </div>
 );
 

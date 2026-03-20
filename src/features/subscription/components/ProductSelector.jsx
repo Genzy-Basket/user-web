@@ -4,9 +4,14 @@ const ProductSelector = ({ product, selectedConfigs = {}, onConfigToggle, onQuan
   if (!product) return null;
 
   const selectedConfigIds = Object.keys(selectedConfigs);
+  const isSelected = selectedConfigIds.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-slate-200 p-5 hover:shadow-md transition-all">
+    <div className={`bg-white rounded-2xl border-2 p-5 transition-all duration-200 ${
+      isSelected
+        ? "border-brand/30 shadow-[0_4px_12px_rgba(9,158,14,0.08)]"
+        : "border-slate-200 hover:shadow-md"
+    }`}>
       {/* Product header */}
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100">
@@ -68,8 +73,8 @@ const ProductSelector = ({ product, selectedConfigs = {}, onConfigToggle, onQuan
       </div>
 
       {/* Quantity steppers — one row per selected config */}
-      {selectedConfigIds.length > 0 && (
-        <div className="pt-3 mt-4 border-t border-slate-100 space-y-3">
+      {isSelected && (
+        <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
           {product.priceConfigs
             .filter((config) => {
               const configId = config._id || config.id;
@@ -78,12 +83,16 @@ const ProductSelector = ({ product, selectedConfigs = {}, onConfigToggle, onQuan
             .map((config) => {
               const configId = config._id || config.id;
               const qty = selectedConfigs[configId] || 1;
+              const lineTotal = config.price * qty;
 
               return (
                 <div key={configId} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600 font-medium">
-                    {config.displayLabel || `${config.value} ${config.unit}`}
-                  </span>
+                  <div>
+                    <span className="text-sm text-slate-600 font-medium block">
+                      {config.displayLabel || `${config.value} ${config.unit}`}
+                    </span>
+                    <span className="text-xs text-slate-400">₹{lineTotal}/day</span>
+                  </div>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, ShieldCheck, ArrowLeft, Loader2, MessageSquare } from "lucide-react";
+import { MapPin, ShieldCheck, ArrowLeft, Loader2, MessageSquare, ChevronRight, Pencil } from "lucide-react";
 import { useCart } from "../../cart/hooks/useCart";
 import { useOrder } from "../hooks/useOrder";
 import { useAuth } from "../../auth/hooks/useAuth";
@@ -149,36 +149,38 @@ const CheckoutPage = () => {
           {/* Left column — address + payment */}
           <div className="lg:col-span-3 space-y-5">
             {/* Delivery Address */}
-            <section className="bg-white rounded-2xl border border-slate-200 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-slate-800 flex items-center gap-2">
+            {address ? (
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="w-full bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 text-left hover:shadow-sm transition-all"
+              >
+                <div className="w-9 h-9 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
                   <MapPin className="w-4 h-4 text-brand" />
-                  Delivery Address
-                </h2>
-                <button
-                  onClick={() => navigate("/profile")}
-                  className="text-xs font-semibold text-brand hover:underline"
-                >
-                  {address ? "Change" : "Add Address"}
-                </button>
-              </div>
-
-              {address ? (
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                  <p className="font-semibold text-slate-800 text-sm">
-                    {address.houseOrFlat}, {address.street}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-800 text-sm truncate">
+                    {address.houseOrFlat}
                   </p>
-                  <p className="text-sm text-slate-600 mt-1">
-                    {address.area}, {address.pincode}
+                  <p className="text-sm text-slate-500 truncate">
+                    {address.street}, {address.area}, {address.pincode}
                   </p>
                 </div>
-              ) : (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-700 text-sm font-medium">
-                  No delivery address found. Please add one before placing an
-                  order.
-                </div>
-              )}
-            </section>
+                <Pencil className="w-4 h-4 text-brand shrink-0" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="w-full bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-amber-100 transition-all"
+              >
+                <span className="text-amber-500 shrink-0 text-lg">⚠️</span>
+                <span className="flex-1 text-sm text-amber-700 font-medium">
+                  Add a delivery address to place your order
+                </span>
+                <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+              </button>
+            )}
 
             {/* Delivery Instructions */}
             <section className="bg-white rounded-2xl border border-slate-200 p-5">

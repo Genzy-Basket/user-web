@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wallet, CreditCard } from "lucide-react";
+import { Wallet, CreditCard, Tag } from "lucide-react";
 
 const SubscriptionSummary = ({
   items,
@@ -18,6 +18,12 @@ const SubscriptionSummary = ({
   const totalCost = dailyCost * totalDays;
   const canAffordWallet = walletBalance >= totalCost;
   const remainingBalance = walletBalance - totalCost;
+  const totalSavings = items.reduce((sum, item) => {
+    if (item.config.mrp > item.config.price) {
+      return sum + (item.config.mrp - item.config.price) * item.quantity * totalDays;
+    }
+    return sum;
+  }, 0);
 
   if (items.length === 0 || totalDays === 0) return null;
 
@@ -25,6 +31,14 @@ const SubscriptionSummary = ({
 
   return (
     <div className="bg-white rounded-2xl border-2 border-slate-200 p-5">
+      {totalSavings > 0 && (
+        <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 mb-4 flex items-center gap-2">
+          <Tag className="w-4 h-4 text-brand shrink-0" />
+          <span className="text-sm font-bold text-brand">
+            You save ₹{totalSavings} on this subscription!
+          </span>
+        </div>
+      )}
       <h3 className="font-bold text-slate-800 text-lg mb-4">Subscription Summary</h3>
 
       {/* Line items */}

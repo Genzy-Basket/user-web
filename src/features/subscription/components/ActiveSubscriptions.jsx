@@ -59,17 +59,42 @@ const ActiveSubscriptions = ({ onNewSubscription } = {}) => {
         const upcomingDates = sub.deliveryDates?.filter((d) => d.status === "upcoming") ?? [];
         const nextDelivery = upcomingDates[0]?.date;
 
+        // Expiry: last upcoming date
+        let lastUpcomingDate = null;
+        for (const dd of upcomingDates) {
+          const d = new Date(dd.date);
+          d.setHours(0, 0, 0, 0);
+          if (!lastUpcomingDate || d > lastUpcomingDate) lastUpcomingDate = d;
+        }
+        const todayMs = new Date().setHours(0, 0, 0, 0);
+        const daysUntilExpiry = lastUpcomingDate
+          ? Math.round((lastUpcomingDate - todayMs) / 86400000)
+          : null;
+        const isNearExpiry = sub.status === "active" && daysUntilExpiry !== null && daysUntilExpiry <= 2;
+        const expiryLabel = daysUntilExpiry === 0
+          ? "Expires today"
+          : daysUntilExpiry === 1
+          ? "Expires tomorrow"
+          : `Expires in ${daysUntilExpiry} days`;
+
         return (
           <div
             key={sub._id || sub.subscriptionId}
-            className="bg-white rounded-2xl border border-slate-100 p-4 hover:shadow-md transition-all cursor-pointer"
+            className={`bg-white rounded-2xl border p-4 hover:shadow-md transition-all cursor-pointer ${isNearExpiry ? "border-amber-200" : "border-slate-100"}`}
             onClick={() => navigate(`/subscriptions/${sub.subscriptionId}`)}
           >
             {/* Header: status badge + subscription ID */}
             <div className="flex items-center justify-between mb-2">
-              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${status.bg} ${status.text}`}>
-                {status.label}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${status.bg} ${status.text}`}>
+                  {status.label}
+                </span>
+                {isNearExpiry && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-600">
+                    {expiryLabel}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-slate-400 font-medium">
                 {sub.subscriptionId}
               </span>
