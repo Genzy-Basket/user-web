@@ -42,6 +42,11 @@ const userAPI = {
     const response = await apiClient.delete(`/user/members/${memberId}`);
     return response.data;
   },
+
+  deleteAccount: async () => {
+    const response = await apiClient.delete("/user/account");
+    return response.data;
+  },
 };
 
 export default userAPI;

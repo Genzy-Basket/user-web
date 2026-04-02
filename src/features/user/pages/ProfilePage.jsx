@@ -25,6 +25,7 @@ import {
   FileText,
   Undo2,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import PageLayout from "../../../components/PageLayout";
 
@@ -421,6 +422,15 @@ const ProfilePage = () => {
           iconColor="text-slate-500"
           label="Privacy Policy"
           to="/privacy"
+        />
+        <div className="h-px bg-slate-100 mx-4" />
+        <MenuItem
+          icon={Trash2}
+          iconBg="bg-red-50"
+          iconColor="text-red-500"
+          label="Delete Account"
+          subtitle="Permanently delete your account and data"
+          to="/delete-account"
         />
       </div>
 

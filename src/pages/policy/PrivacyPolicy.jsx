@@ -82,14 +82,14 @@ const PrivacyPolicy = () => {
         <Section title="3. Payment Information">
           <p>
             All online payments are processed securely through{" "}
-            <strong>Cashfree Payments</strong>, our trusted payment gateway
-            partner. Cashfree is PCI-DSS compliant and adheres to the highest
+            <strong>Razorpay</strong>, our trusted payment gateway
+            partner. Razorpay is PCI-DSS compliant and adheres to the highest
             industry security standards.
           </p>
           <p>
             We do <strong>not</strong> store your credit card, debit card, or
             bank account details on our servers. All payment data is handled
-            directly by Cashfree Payments.
+            directly by Razorpay.
           </p>
         </Section>
 
@@ -105,7 +105,7 @@ const PrivacyPolicy = () => {
           </p>
           <p>
             <strong>Payment Processors:</strong> Transaction details are shared
-            with Cashfree Payments for processing your payments securely.
+            with Razorpay for processing your payments securely.
           </p>
           <p>
             <strong>Law Enforcement:</strong> We may disclose your information
@@ -134,11 +134,16 @@ const PrivacyPolicy = () => {
           </p>
           <p>
             <strong>Deletion:</strong> Request deletion of your account and
-            associated data, subject to legal retention requirements.
+            associated data, subject to legal retention requirements. You can
+            delete your account directly from the{" "}
+            <Link to="/delete-account" className="text-brand hover:underline">
+              Account Deletion page
+            </Link>{" "}
+            or from your Profile settings within the app.
           </p>
           <p>
-            To exercise any of these rights, please contact us using the details
-            below.
+            To exercise any of these rights, you may also contact us using the
+            details below.
           </p>
         </Section>
 

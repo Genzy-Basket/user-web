@@ -40,6 +40,9 @@ const RefundsAndCancellations = lazy(
 const PrivacyPolicy = lazy(
   () => import("./pages/policy/PrivacyPolicy"),
 );
+const DeleteAccount = lazy(
+  () => import("./pages/policy/DeleteAccount"),
+);
 
 // ── Lazily loaded (only when user navigates to them) ─────────────────────────
 const CheckoutPage = lazy(() => import("./features/order/pages/CheckoutPage"));
@@ -140,6 +143,14 @@ function App() {
                         element={
                           <Suspense fallback={<PageLoader />}>
                             <PrivacyPolicy />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/delete-account"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <DeleteAccount />
                           </Suspense>
                         }
                       />

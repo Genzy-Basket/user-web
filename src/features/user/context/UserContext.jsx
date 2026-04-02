@@ -42,6 +42,10 @@ export const UserProvider = ({ children }) => {
     userAPI.updateProfile,
     { successMessage: "Profile updated!" },
   );
+  const { execute: runDeleteAccount, loading: deleteAccountLoading } = useApiCall(
+    userAPI.deleteAccount,
+    { successMessage: "Account deleted successfully." },
+  );
 
   const loading =
     fetchLoading ||
@@ -50,7 +54,8 @@ export const UserProvider = ({ children }) => {
     addMemberLoading ||
     updateMemberLoading ||
     removeMemberLoading ||
-    updateProfileLoading;
+    updateProfileLoading ||
+    deleteAccountLoading;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   /**
@@ -119,6 +124,11 @@ export const UserProvider = ({ children }) => {
     [runUpdateProfile],
   );
 
+  const deleteAccount = useCallback(async () => {
+    const response = wrap(await runDeleteAccount());
+    return response;
+  }, [runDeleteAccount]);
+
   const clearError = useCallback(() => setError(null), []);
 
   const hasAddress = !!profile?.address;
@@ -132,6 +142,7 @@ export const UserProvider = ({ children }) => {
       clearError,
       fetchProfile,
       updateProfile,
+      deleteAccount,
       saveAddress,
       addMember,
       updateMember,
@@ -146,6 +157,7 @@ export const UserProvider = ({ children }) => {
       clearError,
       fetchProfile,
       updateProfile,
+      deleteAccount,
       saveAddress,
       addMember,
       updateMember,
