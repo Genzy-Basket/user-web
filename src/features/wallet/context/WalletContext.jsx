@@ -44,10 +44,10 @@ export function WalletProvider({ children }) {
     }
   }, []);
 
-  const verifyFunds = useCallback(async (cashfreeOrderId) => {
+  const verifyFunds = useCallback(async (razorpayOrderId) => {
     setLoading(true);
     try {
-      const res = await walletAPI.verifyFunds(cashfreeOrderId);
+      const res = await walletAPI.verifyFunds(razorpayOrderId);
       if (res.success && res.data.status === "success" && res.data.balance != null) {
         setBalance(res.data.balance);
       }

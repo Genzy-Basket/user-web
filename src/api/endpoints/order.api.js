@@ -3,7 +3,7 @@ import apiClient from "../api.client";
 const orderAPI = {
   /**
    * Create a new order from the current user's cart.
-   * For online payments, returns { order, paymentSessionId, cashfreeOrderId }.
+   * For online payments, returns { order, razorpayOrderId, keyId }.
    * For COD, returns { order }.
    */
   createOrder: async (paymentMethod, customerNotes = null) => {
@@ -29,7 +29,7 @@ const orderAPI = {
 
   /**
    * Lightweight status poll — returns { orderId, orderStatus, paymentStatus, totalAmount }
-   * Call this after Cashfree redirect to check whether the webhook has confirmed the order.
+   * Call this after Razorpay checkout to check whether the webhook has confirmed the order.
    */
   getOrderStatus: async (orderId) => {
     const response = await apiClient.get(`/orders/${orderId}/status`);
@@ -37,15 +37,15 @@ const orderAPI = {
   },
 
   /**
-   * Manually verify payment with Cashfree (fallback if webhook was missed).
-   * Call this after redirect if polling shows status still "pending".
+   * Manually verify payment with Razorpay (fallback if webhook was missed).
+   * Call this after checkout if polling shows status still "pending".
    */
   verifyPayment: async (orderId) => {
     const response = await apiClient.post(`/orders/${orderId}/verify-payment`, {});
     return response.data;
   },
 
-  /** Get/create Cashfree payment session for a COD order */
+  /** Get/create Razorpay payment session for a COD order */
   getCodPaymentSession: async (orderId) => {
     const response = await apiClient.post(`/orders/${orderId}/cod-pay`, {});
     return response.data;

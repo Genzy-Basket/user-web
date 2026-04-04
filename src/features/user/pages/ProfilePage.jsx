@@ -26,6 +26,7 @@ import {
   Undo2,
   ShieldCheck,
   Trash2,
+  Smartphone,
 } from "lucide-react";
 import PageLayout from "../../../components/PageLayout";
 
@@ -392,6 +393,15 @@ const ProfilePage = () => {
           label="Contact Us"
           subtitle="Get help or reach out"
           to="/contact"
+        />
+        <div className="h-px bg-slate-100 mx-4" />
+        <MenuItem
+          icon={Smartphone}
+          iconBg="bg-purple-50"
+          iconColor="text-purple-600"
+          label="Download App"
+          subtitle="Get the Android app for a better experience"
+          to="/download"
         />
       </div>
 

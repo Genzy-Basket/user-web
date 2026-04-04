@@ -16,18 +16,18 @@ const PHASE = {
   ALREADY_PAID: "already_paid",
 };
 
-const loadCashfreeSdk = () =>
-  new Promise((resolve, reject) => {
-    if (window.Cashfree) return resolve(window.Cashfree);
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.onload = () => resolve(window.Cashfree);
-    script.onerror = () => reject(new Error("Failed to load payment SDK"));
-    document.head.appendChild(script);
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
   });
 
 const PayPage = () => {
-  const { cashfreeOrderId } = useParams();
+  const { gatewayOrderId } = useParams();
   const [phase, setPhase] = useState(PHASE.LOADING);
   const [payData, setPayData] = useState(null);
   const [error, setError] = useState(null);
@@ -40,7 +40,7 @@ const PayPage = () => {
 
     (async () => {
       try {
-        const { data } = await axios.get(`${API_URL}/pay/${cashfreeOrderId}`);
+        const { data } = await axios.get(`${API_URL}/pay/${gatewayOrderId}`);
         if (!data.success) throw new Error(data.message);
 
         if (data.alreadyPaid) {
@@ -57,61 +57,62 @@ const PayPage = () => {
         setPhase(PHASE.ERROR);
       }
     })();
-  }, [cashfreeOrderId]);
+  }, [gatewayOrderId]);
 
   const handlePay = async () => {
-    if (!payData?.paymentSessionId) return;
+    if (!payData?.razorpayOrderId || !payData?.keyId) return;
     setPhase(PHASE.PAYING);
 
     try {
-      const Cashfree = await loadCashfreeSdk();
-      const cashfree = Cashfree({
-        mode:
-          import.meta.env.VITE_CASHFREE_ENV === "production"
-            ? "production"
-            : "sandbox",
-      });
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error("Failed to load Razorpay SDK");
 
-      cashfree.checkout({
-        paymentSessionId: payData.paymentSessionId,
-        redirectTarget: "_self",
-        returnUrl: `${window.location.origin}/pay/${cashfreeOrderId}`,
+      const options = {
+        key: payData.keyId,
+        order_id: payData.razorpayOrderId,
+        name: "Genzy Basket",
+        theme: { color: "#099E0E" },
+        handler: async function () {
+          // Payment succeeded — verify with backend
+          setPhase(PHASE.VERIFYING);
+          try {
+            const { data } = await axios.post(
+              `${API_URL}/pay/${gatewayOrderId}/verify`,
+              {},
+            );
+            if (data.paid) {
+              setPhase(PHASE.SUCCESS);
+            } else {
+              setError("Payment was not completed. Please try again.");
+              setPhase(PHASE.FAILED);
+            }
+          } catch {
+            setError(
+              "Could not verify payment. Please check with the delivery person.",
+            );
+            setPhase(PHASE.FAILED);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            // User closed modal without completing payment
+            setError("Payment was cancelled.");
+            setPhase(PHASE.FAILED);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        setError(response.error?.description || "Payment failed. Please try again.");
+        setPhase(PHASE.FAILED);
       });
+      rzp.open();
     } catch {
       setError("Failed to open payment. Please try again.");
       setPhase(PHASE.READY);
     }
   };
-
-  // On return from Cashfree redirect, verify payment
-  useEffect(() => {
-    if (phase !== PHASE.READY || !payData) return;
-
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has("order_id")) return;
-
-    // Cashfree redirected back — verify
-    setPhase(PHASE.VERIFYING);
-    (async () => {
-      try {
-        const { data } = await axios.post(
-          `${API_URL}/pay/${cashfreeOrderId}/verify`,
-          {},
-        );
-        if (data.paid) {
-          setPhase(PHASE.SUCCESS);
-        } else {
-          setError("Payment was not completed. Please try again.");
-          setPhase(PHASE.FAILED);
-        }
-      } catch {
-        setError(
-          "Could not verify payment. Please check with the delivery person.",
-        );
-        setPhase(PHASE.FAILED);
-      }
-    })();
-  }, [phase, payData, cashfreeOrderId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
@@ -147,7 +148,7 @@ const PayPage = () => {
             </button>
             <div className="flex items-center justify-center gap-1.5 text-slate-400 text-xs mt-4">
               <ShieldCheck className="w-4 h-4" />
-              <span>Secured by Cashfree Payments</span>
+              <span>Secured by Razorpay</span>
             </div>
           </>
         )}

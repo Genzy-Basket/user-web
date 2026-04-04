@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Wallet, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import PageLayout from "../../../components/PageLayout";
 import { useWallet } from "../hooks/useWallet";
+import { useUser } from "../../user/hooks/useUser";
 import { errorBus } from "../../../api/errorBus";
 
 const PRESETS = [500, 1000, 2000, 3000, 5000];
@@ -15,32 +16,25 @@ const PHASE_LABELS = {
 
 const WalletPage = () => {
   const { balance, transactions, pagination, loading, fetchWallet, addFunds, verifyFunds } = useWallet();
+  const { profile } = useUser();
   const [amount, setAmount] = useState("");
   const [phase, setPhase] = useState("idle");
   const [resultBalance, setResultBalance] = useState(null);
 
-  // Preload Cashfree SDK on mount so it's ready when needed
-  const sdkPromiseRef = useState(() => null);
-  const loadCashfreeSdk = () => {
-    if (window.Cashfree) return Promise.resolve(window.Cashfree);
-    if (!sdkPromiseRef[0]) {
-      sdkPromiseRef[0] = new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-        script.onload = () => resolve(window.Cashfree);
-        script.onerror = () => {
-          sdkPromiseRef[0] = null;
-          reject(new Error("Failed to load Cashfree SDK"));
-        };
-        document.head.appendChild(script);
-      });
-    }
-    return sdkPromiseRef[0];
-  };
+  // Preload Razorpay SDK on mount so it's ready when needed
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true);
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
 
   useEffect(() => {
     fetchWallet();
-    loadCashfreeSdk();
+    loadRazorpayScript();
   }, [fetchWallet]);
 
   const handleAddFunds = async () => {
@@ -53,9 +47,9 @@ const WalletPage = () => {
     try {
       // Run API call and SDK load in parallel
       setPhase("creating");
-      const [result, cashfree] = await Promise.all([
+      const [result, loaded] = await Promise.all([
         addFunds(num),
-        loadCashfreeSdk(),
+        loadRazorpayScript(),
       ]);
 
       if (!result) {
@@ -63,52 +57,72 @@ const WalletPage = () => {
         return;
       }
 
-      const { paymentSessionId, cashfreeOrderId } = result;
-      if (!paymentSessionId || !cashfreeOrderId) {
+      const { razorpayOrderId, keyId } = result;
+      if (!razorpayOrderId || !keyId) {
         errorBus.emit("Payment session not available", "error");
         setPhase("idle");
         return;
       }
 
-      const instance = cashfree({
-        mode: import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox",
-      });
+      if (!loaded) {
+        errorBus.emit("Failed to load payment SDK", "error");
+        setPhase("idle");
+        return;
+      }
 
       // Phase 3: Open payment modal
       setPhase("paying");
-      await instance.checkout({
-        paymentSessionId,
-        redirectTarget: "_modal",
-        returnUrl: window.location.href,
-      });
 
-      // Phase 4: Verify payment (checkout promise resolved = modal closed)
-      setPhase("verifying");
+      const options = {
+        key: keyId,
+        order_id: razorpayOrderId,
+        name: "Genzy Basket",
+        prefill: {
+          contact: profile?.phoneNumber || "",
+          email: profile?.email || "",
+        },
+        theme: { color: "#099E0E" },
+        handler: async function () {
+          // Phase 4: Verify payment
+          setPhase("verifying");
 
-      // Small delay to let Cashfree finalize on their end
-      await new Promise((r) => setTimeout(r, 1500));
+          // Small delay to let Razorpay finalize on their end
+          await new Promise((r) => setTimeout(r, 1500));
 
-      const res = await verifyFunds(cashfreeOrderId);
-      if (res?.status === "success") {
-        setResultBalance(res.balance);
-        setPhase("success");
-        setAmount("");
-        fetchWallet();
-      } else if (res?.status === "pending") {
-        // Retry once more after a longer delay
-        await new Promise((r) => setTimeout(r, 3000));
-        const retry = await verifyFunds(cashfreeOrderId);
-        if (retry?.status === "success") {
-          setResultBalance(retry.balance);
-          setPhase("success");
-          setAmount("");
-          fetchWallet();
-        } else {
-          setPhase("failed");
-        }
-      } else {
+          const res = await verifyFunds(razorpayOrderId);
+          if (res?.status === "success") {
+            setResultBalance(res.balance);
+            setPhase("success");
+            setAmount("");
+            fetchWallet();
+          } else if (res?.status === "pending") {
+            // Retry once more after a longer delay
+            await new Promise((r) => setTimeout(r, 3000));
+            const retry = await verifyFunds(razorpayOrderId);
+            if (retry?.status === "success") {
+              setResultBalance(retry.balance);
+              setPhase("success");
+              setAmount("");
+              fetchWallet();
+            } else {
+              setPhase("failed");
+            }
+          } else {
+            setPhase("failed");
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setPhase("idle");
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function () {
         setPhase("failed");
-      }
+      });
+      rzp.open();
     } catch {
       errorBus.emit("Could not launch payment", "error");
       setPhase("idle");

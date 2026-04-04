@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useOrder } from "../hooks/useOrder";
 import { useCart } from "../../cart/hooks/useCart";
+import { useUser } from "../../user/hooks/useUser";
 import orderAPI from "../../../api/endpoints/order.api";
 import OrderStatusBadge from "../components/OrderStatusBadge";
 import OrderSummary from "../components/OrderSummary";
@@ -29,14 +30,14 @@ import {
 
 const REORDERABLE_STATUSES = [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REFUNDED];
 
-const loadCashfreeSdk = () =>
-  new Promise((resolve, reject) => {
-    if (window.Cashfree) return resolve(window.Cashfree);
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.onload = () => resolve(window.Cashfree);
-    script.onerror = () => reject(new Error("Failed to load payment SDK"));
-    document.head.appendChild(script);
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
   });
 
 const OrderDetailPage = () => {
@@ -44,6 +45,7 @@ const OrderDetailPage = () => {
   const navigate = useNavigate();
   const { fetchOrder, cancelOrder, loading, error } = useOrder();
   const { addItem } = useCart();
+  const { profile } = useUser();
 
   const [order, setOrder] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -64,17 +66,36 @@ const OrderDetailPage = () => {
         return;
       }
 
-      const { paymentSessionId, cashfreeOrderId } = res.data;
-      const Cashfree = await loadCashfreeSdk();
-      const cashfree = Cashfree({
-        mode: import.meta.env.VITE_CASHFREE_ENV === "production" ? "production" : "sandbox",
-      });
+      const { razorpayOrderId, keyId } = res.data;
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error("Failed to load Razorpay SDK");
 
-      cashfree.checkout({
-        paymentSessionId,
-        redirectTarget: "_self",
-        returnUrl: `${window.location.origin}/orders/${order.orderId}`,
+      const options = {
+        key: keyId,
+        order_id: razorpayOrderId,
+        name: "Genzy Basket",
+        prefill: {
+          contact: profile?.phoneNumber || "",
+          email: profile?.email || "",
+        },
+        theme: { color: "#099E0E" },
+        handler: async function () {
+          // Payment succeeded — refresh order
+          const refreshed = await orderAPI.getOrder(order.orderId);
+          if (refreshed.success) setOrder(refreshed.data);
+        },
+        modal: {
+          ondismiss: function () {
+            // User closed modal — do nothing, order stays as-is
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function () {
+        // Payment failed — do nothing, user can retry
       });
+      rzp.open();
     } catch {
       // error handled by context
     } finally {
@@ -86,7 +107,7 @@ const OrderDetailPage = () => {
     if (!orderId) return;
     fetchOrder(orderId).then(async (o) => {
       if (!o) return;
-      // If pending online payment, try to reconcile with Cashfree
+      // If pending online payment, try to reconcile with payment gateway
       if (
         o.orderStatus === "pending" &&
         o.payment?.method === "online" &&
@@ -352,7 +373,7 @@ const OrderDetailPage = () => {
             </button>
             <div className="flex items-center justify-center gap-1.5 text-slate-400 text-xs mt-3">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Secured by Cashfree Payments</span>
+              <span>Secured by Razorpay</span>
             </div>
           </section>
         )}

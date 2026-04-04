@@ -62,7 +62,7 @@ const TermsAndConditions = () => {
           <p>
             All orders are subject to availability. We reserve the right to
             cancel or refuse any order. Payments can be made via online payment
-            methods (powered by Cashfree Payments) or Cash on Delivery (COD)
+            methods (powered by Razorpay) or Cash on Delivery (COD)
             where available.
           </p>
           <p>

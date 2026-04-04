@@ -21,8 +21,8 @@ const PriceConfigsModal = (product, setShowConfigModal) => {
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover shrink-0"
               />
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
-                🥬
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center shrink-0 p-3">
+                <img src="/logo_icon_green.png" alt="Product" className="w-full h-full object-contain" />
               </div>
             )}
             <div className="flex-1 min-w-0">

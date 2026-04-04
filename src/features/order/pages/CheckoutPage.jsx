@@ -41,15 +41,15 @@ const CheckoutPage = () => {
 
   const address = profile?.address;
 
-  // ── Load Cashfree SDK ────────────────────────────────────────────────────
-  const loadCashfreeSdk = () =>
-    new Promise((resolve, reject) => {
-      if (window.Cashfree) return resolve(window.Cashfree);
+  // ── Load Razorpay SDK ────────────────────────────────────────────────────
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true);
       const script = document.createElement("script");
-      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-      script.onload = () => resolve(window.Cashfree);
-      script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
-      document.head.appendChild(script);
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
     });
 
   const [showCodConfirm, setShowCodConfirm] = useState(false);
@@ -82,30 +82,45 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Online payment — open Cashfree checkout
-    const { paymentSessionId, order } = result;
+    // Online payment — open Razorpay checkout
+    const { razorpayOrderId, keyId, order } = result;
 
     try {
-      const cashfree = await loadCashfreeSdk();
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error("Failed to load Razorpay SDK");
 
-      const cashfreeInstance = cashfree({
-        mode:
-          import.meta.env.VITE_CASHFREE_ENV === "production"
-            ? "production"
-            : "sandbox",
-      });
+      const options = {
+        key: keyId,
+        order_id: razorpayOrderId,
+        name: "Genzy Basket",
+        prefill: {
+          contact: profile?.phoneNumber || "",
+          email: profile?.email || "",
+        },
+        theme: { color: "#099E0E" },
+        handler: function () {
+          // Payment succeeded — navigate to processing page to verify
+          navigate(ORDER_ROUTES.PAYMENT_PROCESSING, {
+            state: { orderId: order.orderId },
+          });
+        },
+        modal: {
+          ondismiss: function () {
+            // User closed the modal without paying — still go to processing
+            navigate(ORDER_ROUTES.PAYMENT_PROCESSING, {
+              state: { orderId: order.orderId },
+            });
+          },
+        },
+      };
 
-      cashfreeInstance.checkout({
-        paymentSessionId,
-        redirectTarget: "_self", // redirect in same tab
-        returnUrl: `${window.location.origin}${ORDER_ROUTES.PAYMENT_PROCESSING}?app_order_id=${order.orderId}`,
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function () {
+        navigate(ORDER_ROUTES.PAYMENT_PROCESSING, {
+          state: { orderId: order.orderId },
+        });
       });
-
-      // Navigate to processing page immediately so the user sees feedback
-      // even if the redirect takes a moment
-      navigate(ORDER_ROUTES.PAYMENT_PROCESSING, {
-        state: { orderId: order.orderId },
-      });
+      rzp.open();
     } catch {
       navigate(ORDER_ROUTES.PAYMENT_PROCESSING, {
         state: { orderId: order.orderId },
@@ -247,7 +262,7 @@ const CheckoutPage = () => {
 
             <div className="flex items-center justify-center gap-2 text-slate-400 text-xs">
               <ShieldCheck className="w-4 h-4" />
-              <span>Secured by Cashfree Payments</span>
+              <span>Secured by Razorpay</span>
             </div>
           </div>
         </div>

@@ -55,8 +55,8 @@ const RegisterPage = () => {
       <div className="max-w-2xl w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4 shadow-lg">
-            <span className="text-3xl">🥬</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4 shadow-lg p-2.5">
+            <img src="/logo_icon_white.png" alt="Genzy Basket" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
           <p className="mt-2 text-gray-600">Join Genzy Basket today</p>

@@ -14,7 +14,7 @@ const OrderSuccessPage = () => {
 
   const [order, setOrder] = useState(null);
 
-  // orderId can arrive via router state or Cashfree's return_url query param
+  // orderId can arrive via router state or return_url query param
   const orderId = location.state?.orderId || searchParams.get("order_id");
 
   useEffect(() => {

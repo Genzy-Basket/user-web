@@ -40,13 +40,13 @@ export function OrderProvider({ children }) {
 
   // ── Create Order ───────────────────────────────────────────────────────────
   /**
-   * Creates the backend order and, for online payments, loads the Cashfree SDK
-   * and opens the payment sheet.
+   * Creates the backend order and, for online payments, returns the
+   * Razorpay order details so the caller can open the checkout.
    *
    * Returns:
-   *  - { success: true, order, isCod: true }          for COD
-   *  - { success: true, order, paymentSessionId, cashfreeOrderId }  for online
-   *  - { success: false, message }                    on error
+   *  - { success: true, order, isCod: true }                      for COD
+   *  - { success: true, order, razorpayOrderId, keyId }           for online
+   *  - { success: false, message }                                on error
    */
   const createOrder = useCallback(async (paymentMethod, customerNotes = null) => {
     setLoading(true);
@@ -58,7 +58,7 @@ export function OrderProvider({ children }) {
       if (!result.success)
         throw new Error(result.message || "Failed to create order");
 
-      const { order, paymentSessionId, cashfreeOrderId } = result.data;
+      const { order, razorpayOrderId, keyId } = result.data;
       setCurrentOrder(order);
 
       if (paymentMethod === "cod" || paymentMethod === "wallet") {
@@ -66,7 +66,7 @@ export function OrderProvider({ children }) {
         return { success: true, order, isCod: paymentMethod === "cod" };
       }
 
-      return { success: true, order, paymentSessionId, cashfreeOrderId };
+      return { success: true, order, razorpayOrderId, keyId };
     } catch (err) {
       const msg = err.message || "Failed to create order";
       setError(msg);
@@ -91,7 +91,7 @@ export function OrderProvider({ children }) {
       const startTime = Date.now();
       let interval = PAYMENT_POLL_INITIAL_INTERVAL_MS;
 
-      // Verify with Cashfree immediately — if payment is already confirmed
+      // Verify with gateway immediately — if payment is already confirmed
       // there's no need to wait for the webhook.
       try {
         const verifyRes = await orderAPI.verifyPayment(orderId);

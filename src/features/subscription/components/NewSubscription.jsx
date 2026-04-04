@@ -8,6 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useWallet } from "../../wallet/hooks/useWallet";
+import { useUser } from "../../user/hooks/useUser";
 import { useSubscription } from "../hooks/useSubscription";
 import { errorBus } from "../../../api/errorBus";
 import subscriptionAPI from "../../../api/endpoints/subscription.api";
@@ -18,14 +19,14 @@ import SubscriptionSummary from "./SubscriptionSummary";
 const toDateKey = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-const loadCashfreeSdk = () =>
-  new Promise((resolve, reject) => {
-    if (window.Cashfree) return resolve(window.Cashfree);
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.onload = () => resolve(window.Cashfree);
-    script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
-    document.head.appendChild(script);
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
   });
 
 const STEPS = [
@@ -36,6 +37,7 @@ const STEPS = [
 
 const NewSubscription = ({ onBack }) => {
   const { balance, fetchWallet } = useWallet();
+  const { profile } = useUser();
   const {
     createSubscription,
     verifyPayment,
@@ -236,43 +238,62 @@ const NewSubscription = ({ onBack }) => {
       return;
     }
 
-    // Online payment — launch Cashfree
-    const { paymentSessionId, subscriptionId } = result;
-    if (!paymentSessionId) {
+    // Online payment — launch Razorpay
+    const { razorpayOrderId, keyId, subscriptionId } = result;
+    if (!razorpayOrderId || !keyId) {
       errorBus.emit("Payment session not available", "error");
       return;
     }
 
     try {
-      const cashfree = await loadCashfreeSdk();
-      const instance = cashfree({
-        mode:
-          import.meta.env.VITE_CASHFREE_ENV === "production"
-            ? "production"
-            : "sandbox",
-      });
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error("Failed to load Razorpay SDK");
 
-      // _modal mode: checkout() resolves when modal closes
-      await instance.checkout({
-        paymentSessionId,
-        redirectTarget: "_modal",
-      });
+      const options = {
+        key: keyId,
+        order_id: razorpayOrderId,
+        name: "Genzy Basket",
+        prefill: {
+          contact: profile?.phoneNumber || "",
+          email: profile?.email || "",
+        },
+        theme: { color: "#099E0E" },
+        handler: async function () {
+          // Payment succeeded — poll for verification
+          const status = await pollVerification(subscriptionId);
+          if (status === "success") {
+            errorBus.emit("Subscription created!", "success");
+            fetchWallet();
+            onBack();
+          } else if (status === "timeout") {
+            errorBus.emit(
+              "Payment is still processing. Check back shortly.",
+              "info",
+            );
+            onBack();
+          } else {
+            errorBus.emit("Payment failed. Please try again.", "error");
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            // User closed modal — still poll in case payment went through
+            pollVerification(subscriptionId).then((status) => {
+              if (status === "success") {
+                errorBus.emit("Subscription created!", "success");
+                fetchWallet();
+                onBack();
+              }
+            });
+          },
+        },
+      };
 
-      // Modal closed — poll for verification
-      const status = await pollVerification(subscriptionId);
-      if (status === "success") {
-        errorBus.emit("Subscription created!", "success");
-        fetchWallet();
-        onBack();
-      } else if (status === "timeout") {
-        errorBus.emit(
-          "Payment is still processing. Check back shortly.",
-          "info",
-        );
-        onBack();
-      } else {
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function () {
         errorBus.emit("Payment failed. Please try again.", "error");
-      }
+      });
+      rzp.open();
     } catch {
       errorBus.emit("Could not launch payment", "error");
     }
